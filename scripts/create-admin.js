@@ -15,7 +15,7 @@ const serviceAccount = JSON.parse(
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  projectId: 'ima-test-b7299'
+  projectId: 'ima-gallery'
 });
 
 const db = admin.firestore();
