@@ -193,6 +193,69 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
     },
 
+    async createAdminUser(email: string, password: string, name: string): Promise<void> {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        // Only admins can create other admins
+        if (!this.isAdmin) {
+          throw new Error('Insufficient permissions to create admin users')
+        }
+
+        const userCredential: UserCredential = await createUserWithEmailAndPassword(auth, email, password)
+        
+        // Update user profile in Firebase Auth
+        await updateProfile(userCredential.user, { displayName: name })
+        
+        // Create admin profile in Firestore
+        await this.createUserProfile(userCredential.user.uid, {
+          email,
+          name,
+          role: 'admin',
+          accessSuppliers: 'all' as any,
+          accessProducts: 'all',
+          visibleFields: ['all'], // Admin can see all fields
+          preferences: {
+            currency: 'USD',
+            dateFormat: 'MM/DD/YYYY',
+            timezone: 'UTC',
+            language: 'en'
+          },
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })
+      } catch (error: any) {
+        this.error = this.getErrorMessage(error.code)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async updateUserRole(uid: string, newRole: 'admin' | 'manager' | 'user' | 'viewer'): Promise<void> {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        // Only admins can change roles
+        if (!this.isAdmin) {
+          throw new Error('Insufficient permissions to update user roles')
+        }
+
+        await updateDoc(doc(db, 'users', uid), {
+          role: newRole,
+          updatedAt: new Date()
+        })
+      } catch (error: any) {
+        this.error = this.getErrorMessage(error.code)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
     getErrorMessage(errorCode: string): string {
       const errorMessages: Record<string, string> = {
         'auth/user-not-found': 'No account found with this email address.',
