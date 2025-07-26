@@ -8,9 +8,9 @@ const firebaseConfig = {
   // These values are safe to expose in client-side code
   // They will be replaced with actual values during build or via environment variables
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "placeholder",
-  authDomain: `ima-test-b7299.firebaseapp.com`,
-  projectId: "ima-test-b7299",
-  storageBucket: `ima-test-b7299.firebasestorage.app`,
+  authDomain: `ima-gallery.firebaseapp.com`,
+  projectId: "ima-gallery",
+  storageBucket: `ima-gallery.firebasestorage.app`,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "placeholder",
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "placeholder"
 }
