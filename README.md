@@ -34,6 +34,7 @@ A lightweight B2B procurement and vendor management platform that enables busine
 - **Required Data**: Company info, contact details, payment terms, communication preferences
 - **Status Management**: Active, inactive, pending approval
 - **Categorization**: Tags and custom fields for organization
+- **Document Management**: Store and manage supplier-specific documents like catalogs, certifications, and agreements.
 
 ### 2.3 Product Catalog Management
 - **Product Groups**: Organize products into catalogs by supplier
@@ -104,6 +105,17 @@ A lightweight B2B procurement and vendor management platform that enables busine
 - `createdBy` - User who created the record
 - `createdAt` - Creation timestamp
 - `updatedAt` - Last update timestamp
+
+**SupplierDocuments**
+- `documentId` - Unique identifier
+- `supplierId` - Foreign key to the supplier
+- `fileName` - Original name of the file
+- `storagePath` - Path to the file in Firebase Storage
+- `fileType` - Mime type or extension
+- `fileSize` - Size in bytes
+- `description` - Optional description of the document
+- `uploadedBy` - UID of the user who uploaded the file
+- `createdAt` - Upload timestamp
 
 **Product Groups (Catalogs)**
 - `groupId` - Unique identifier

@@ -24,6 +24,13 @@
           
           <div class="flex items-center space-x-2">
             <button 
+              @click="navigateToDocuments"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+            >
+              <FileText class="h-4 w-4 mr-2" />
+              Documents
+            </button>
+            <button 
               @click="$emit('edit', supplier)"
               class="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 flex items-center"
             >
@@ -251,6 +258,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
 import { useSupplierStore } from '@/stores/supplier'
 import type { Supplier, SupplierStatus } from '@/types/supplier'
 
@@ -258,7 +266,7 @@ import type { Supplier, SupplierStatus } from '@/types/supplier'
 import { 
   ArrowLeft, Edit, MoreHorizontal, Power, Download, ShoppingCart,
   DollarSign, Star, Calendar, User, Mail, Phone, MessageSquare,
-  MapPin, AlertCircle
+  MapPin, AlertCircle, FileText
 } from 'lucide-vue-next'
 
 // UI Components
@@ -278,11 +286,18 @@ defineEmits<{
   edit: [supplier: Supplier]
 }>()
 
-// Store
+// Router and Store
+const router = useRouter()
 const supplierStore = useSupplierStore()
 const { selectedSupplier: supplier, loading, error } = storeToRefs(supplierStore)
 
 // Methods
+function navigateToDocuments() {
+  if (supplier.value) {
+    router.push(`/suppliers/${supplier.value.supplierId}/documents`)
+  }
+}
+
 function getStatusVariant(status: SupplierStatus) {
   switch (status) {
     case 'active': return 'default'

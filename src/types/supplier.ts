@@ -79,3 +79,35 @@ export interface SupplierStats {
   totalSpend: number
   averageRating: number
 }
+
+// Document Management Types
+export interface SupplierDocument {
+  documentId: string
+  supplierId: string
+  fileName: string
+  storagePath: string
+  fileType: string
+  fileSize: number
+  description?: string
+  uploadedBy: string
+  createdAt: Date
+}
+
+export interface CreateSupplierDocumentRequest {
+  supplierId: string
+  fileName: string
+  fileType: string
+  fileSize: number
+  description?: string
+  file: File
+}
+
+export interface SupplierDocumentFilters {
+  search?: string
+  fileType?: string[]
+  uploadedBy?: string
+  dateRange?: {
+    start: Date
+    end: Date
+  }
+}

@@ -67,6 +67,12 @@ const router = createRouter({
           meta: { title: 'Suppliers' }
         },
         {
+          path: 'suppliers/:id/documents',
+          name: 'supplier-documents',
+          component: () => import('../views/suppliers/documents/SupplierDocuments.vue'),
+          meta: { title: 'Supplier Documents' }
+        },
+        {
           path: 'products',
           name: 'products',
           component: () => import('../views/products/ProductsView.vue'),
