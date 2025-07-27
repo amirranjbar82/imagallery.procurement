@@ -99,8 +99,14 @@ const router = createRouter({
         {
           path: 'settings/access-control',
           name: 'access-control',
-          component: () => import('../views/settings/UserAccessControl.vue'),
+          component: () => import('../views/settings/access-control/UserAccessControl.vue'),
           meta: { title: 'Access Control', roles: ['admin'] }
+        },
+        {
+          path: 'settings/user-management',
+          name: 'user-management',
+          component: () => import('../views/settings/user-management/UserManagement.vue'),
+          meta: { title: 'User Management', roles: ['admin'] }
         }
       ]
     },

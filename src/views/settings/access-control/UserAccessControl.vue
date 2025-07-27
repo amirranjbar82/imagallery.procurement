@@ -3,9 +3,15 @@
     <!-- Header -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">User Access Control</h1>
-          <p class="text-gray-600 mt-1">Manage user permissions for suppliers and field visibility</p>
+        <div class="flex items-center space-x-4">
+          <Button @click="$router.push('/settings')" variant="outline" size="sm">
+            <ArrowLeft class="h-4 w-4 mr-2" />
+            Back to Settings
+          </Button>
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">User Access Control</h1>
+            <p class="text-gray-600 mt-1">Manage user permissions for suppliers and field visibility</p>
+          </div>
         </div>
         <div class="flex items-center space-x-2">
           <button 
@@ -317,12 +323,13 @@ import { FIELD_CATEGORIES, PERMISSION_PRESETS } from '@/types/access-control'
 // Icons
 import { 
   RefreshCw, AlertCircle, Search, Users, Plus, User, Building2, 
-  UserCheck, Settings, Shield, X, CheckCircle
+  UserCheck, Settings, Shield, X, CheckCircle, ArrowLeft
 } from 'lucide-vue-next'
 
 // UI Components
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import Switch from '@/components/ui/switch.vue'
 import {
   Dialog,

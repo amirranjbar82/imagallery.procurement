@@ -9,19 +9,18 @@
     <!-- Settings Categories -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- User Access Control -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 relative">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center">
             <Shield class="h-6 w-6 text-blue-500 mr-3" />
             <h3 class="text-lg font-semibold text-gray-900">User Access Control</h3>
-            <a 
-              href="#" 
-              @click.prevent="$router.push('/settings/access-control')"
-              class="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Manage User Access Control →
-            </a>
           </div>
+          <button 
+            @click="$router.push('/settings/access-control')"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Manage
+          </button>
         </div>
         <p class="text-gray-600 mb-4">Control user permissions for suppliers and field visibility</p>
         <div class="space-y-2 text-sm text-gray-500">
@@ -34,9 +33,17 @@
 
       <!-- User Management -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center mb-4">
-          <Users class="h-6 w-6 text-green-500 mr-3" />
-          <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <Users class="h-6 w-6 text-green-500 mr-3" />
+            <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
+          </div>
+          <button 
+            @click="$router.push('/settings/user-management')"
+            class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+          >
+            Manage
+          </button>
         </div>
         <p class="text-gray-600 mb-4">Manage user accounts, roles, and profiles</p>
         <div class="space-y-2 text-sm text-gray-500">

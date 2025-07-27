@@ -322,7 +322,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 // Components
-import SupplierSelectionDialog from '@/views/settings/SupplierSelectionDialog.vue'
+import SupplierSelectionDialog from '@/views/settings/access-control/SupplierSelectionDialog.vue'
 
 // Stores
 const accessControlStore = useAccessControlStore()

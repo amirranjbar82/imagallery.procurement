@@ -1,7 +1,17 @@
 <template>
   <div class="space-y-6">
-    <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold">User Management</h2>
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <Button @click="$router.push('/settings')" variant="outline" size="sm">
+          <ArrowLeft class="h-4 w-4 mr-2" />
+          Back to Settings
+        </Button>
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">User Management</h2>
+          <p class="text-gray-600 mt-1">Manage user accounts, roles, and permissions</p>
+        </div>
+      </div>
       <Button @click="showCreateModal = true" v-if="authStore.isAdmin">
         <UserPlus class="mr-2 h-4 w-4" />
         Create User
@@ -195,7 +205,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 
 // Icons
-import { UserPlus, Edit, Loader2 } from 'lucide-vue'
+import { UserPlus, Edit, Loader2, ArrowLeft } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 
@@ -225,17 +235,29 @@ const loadUsers = async () => {
 
 const createUser = async () => {
   try {
-    if (newUser.value.role === 'admin') {
-      await authStore.createAdminUser(newUser.value.email, newUser.value.password, newUser.value.name)
-    } else {
-      // For non-admin users, you might want to create a separate method
-      // For now, we'll use the existing signUp and then update the role
-      await authStore.signUp(newUser.value.email, newUser.value.password, newUser.value.name)
-      // The role will be set to 'user' by default in signUp, so we need to update it
-      if (newUser.value.role !== 'user') {
-        // You'd need to get the UID and update the role
-        // This is a simplified approach - in production, you'd want to handle this better
-      }
+    const userRole = newUser.value.role as 'admin' | 'manager' | 'user' | 'viewer'
+    
+    switch (userRole) {
+      case 'admin':
+        await authStore.createAdminUser(newUser.value.email, newUser.value.password, newUser.value.name)
+        break
+      
+      case 'user':
+        // Default role - just create the user
+        await authStore.signUp(newUser.value.email, newUser.value.password, newUser.value.name)
+        break
+      
+      case 'manager':
+      case 'viewer':
+        // Create user with default role, then update role
+        await authStore.signUp(newUser.value.email, newUser.value.password, newUser.value.name)
+        // TODO: Implement role update functionality
+        // You'd need to get the UID and update the role in Firestore
+        console.warn(`Role update for ${userRole} users not yet implemented`)
+        break
+      
+      default:
+        throw new Error(`Unsupported role: ${userRole}`)
     }
     
     showCreateModal.value = false
