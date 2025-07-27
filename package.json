@@ -11,11 +11,14 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/vue-table": "^8.21.3",
+    "@vue-office/docx": "^1.6.3",
+    "@vue-office/excel": "^1.7.14",
     "@vueuse/core": "^13.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.0.0",
     "firebase-admin": "^13.4.0",
+    "firebase-functions": "^6.4.0",
     "lucide-vue-next": "^0.526.0",
     "pinia": "^3.0.3",
     "reka-ui": "^2.4.0",
@@ -23,6 +26,7 @@
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.6",
     "vue": "^3.5.18",
+    "vue-pdf-embed": "^2.1.3",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {

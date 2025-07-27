@@ -38,6 +38,14 @@ service cloud.firestore {
       allow read: if isUser();
     }
 
+    // Supplier Documents collection
+    match /supplierDocuments/{documentId} {
+      allow read, write: if isManager();
+      allow read, create: if isUser();
+      // Users can update/delete documents they uploaded
+      allow update, delete: if isUser() && resource.data.uploadedBy == request.auth.uid;
+    }
+
     // Products collection
     match /products/{productId} {
       allow read, write: if isManager();

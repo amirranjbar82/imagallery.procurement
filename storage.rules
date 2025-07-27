@@ -1,10 +1,24 @@
 rules_version = '2';
 
-// Craft rules based on data in your Firestore database
-// allow write: if firestore.get(
-//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+// Firebase Storage Security Rules for Procurement System
 service firebase.storage {
   match /b/{bucket}/o {
+    // Allow authenticated users to manage supplier documents
+    match /suppliers/{supplierId}/documents/{documentId} {
+      // Allow read access to authenticated users
+      allow read: if request.auth != null;
+      
+      // Allow write/delete access to authenticated users
+      // You can add more specific rules here based on user roles
+      allow write, delete: if request.auth != null;
+    }
+    
+    // Allow authenticated users to read/write their own profile images (if needed)
+    match /users/{userId}/profile/{fileName} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Deny all other access
     match /{allPaths=**} {
       allow read, write: if false;
     }

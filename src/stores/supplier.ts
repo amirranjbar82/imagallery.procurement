@@ -7,6 +7,7 @@ import {
   getDoc,
   addDoc,
   updateDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -14,14 +15,22 @@ import {
   QueryConstraint,
   serverTimestamp
 } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { 
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject
+} from 'firebase/storage'
+import { db, storage } from '@/lib/firebase'
 import { useAuthStore } from './auth'
 import type { 
   Supplier, 
   CreateSupplierRequest, 
   UpdateSupplierRequest,
   SupplierListFilters,
-  SupplierStats
+  SupplierStats,
+  SupplierDocument,
+  CreateSupplierDocumentRequest
 } from '@/types/supplier'
 
 export const useSupplierStore = defineStore('supplier', () => {
@@ -315,6 +324,152 @@ export const useSupplierStore = defineStore('supplier', () => {
     selectedSupplier.value = supplier
   }
 
+  // Document Management Functions
+  async function uploadSupplierDocument(request: CreateSupplierDocumentRequest): Promise<SupplierDocument | null> {
+    try {
+      loading.value = true
+      error.value = null
+
+      if (!authStore.user) {
+        throw new Error('User not authenticated')
+      }
+
+      // Generate unique document ID
+      const documentId = Math.random().toString(36).substr(2, 9)
+      
+      // Create storage reference using documentId as filename
+      const fileExtension = request.file.name.split('.').pop()
+      const storagePath = `suppliers/${request.supplierId}/documents/${documentId}.${fileExtension}`
+      const fileRef = storageRef(storage, storagePath)
+      
+      // Upload file to Firebase Storage
+      await uploadBytes(fileRef, request.file)
+      
+      // Create document metadata in Firestore
+      const docData = {
+        supplierId: request.supplierId,
+        fileName: request.fileName,
+        storagePath,
+        fileType: request.fileType,
+        fileSize: request.fileSize,
+        description: request.description || '',
+        uploadedBy: authStore.user.uid,
+        createdAt: serverTimestamp()
+      }
+      
+
+      const docRef = await addDoc(collection(db, 'supplierDocuments'), docData)
+      
+      // Return the created document
+      const document: SupplierDocument = {
+        documentId: docRef.id,
+        ...docData,
+        uploadedBy: authStore.userProfile?.name || authStore.user.email || 'Unknown',
+        createdAt: new Date()
+      }
+      
+      return document
+      
+    } catch (err) {
+      console.error('Error uploading document:', err)
+      error.value = 'Failed to upload document'
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchSupplierDocuments(supplierId: string): Promise<SupplierDocument[]> {
+    try {
+      loading.value = true
+      error.value = null
+      
+    const q = query(
+      collection(db, 'supplierDocuments'),
+      where('supplierId', '==', supplierId),
+      orderBy('createdAt', 'desc')
+    )
+    
+    const snapshot = await getDocs(q)
+      
+      const documents: SupplierDocument[] = []
+      
+      snapshot.forEach(doc => {
+        const data = doc.data()
+        documents.push({
+          documentId: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date()
+        } as SupplierDocument)
+      })
+      return documents
+      
+    } catch (err) {
+      console.error('Error fetching documents:', err)
+      error.value = 'Failed to fetch documents'
+      return []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function updateSupplierDocument(documentId: string, updates: Partial<SupplierDocument>): Promise<boolean> {
+    try {
+      loading.value = true
+      error.value = null
+      
+      const docRef = doc(db, 'supplierDocuments', documentId)
+      await updateDoc(docRef, {
+        ...updates,
+        updatedAt: serverTimestamp()
+      })
+      
+      return true
+      
+    } catch (err) {
+      console.error('Error updating document:', err)
+      error.value = 'Failed to update document'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function deleteSupplierDocument(document: SupplierDocument): Promise<boolean> {
+    try {
+      loading.value = true
+      error.value = null
+      
+      // Delete file from Firebase Storage
+      const fileRef = storageRef(storage, document.storagePath)
+      await deleteObject(fileRef)
+      
+      // Delete document metadata from Firestore
+      await deleteDoc(doc(db, 'supplierDocuments', document.documentId))
+      
+      return true
+      
+    } catch (err) {
+      console.error('Error deleting document:', err)
+      error.value = 'Failed to delete document'
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function getDocumentDownloadURL(document: SupplierDocument): Promise<string | null> {
+    try {
+      const fileRef = storageRef(storage, document.storagePath)
+      const url = await getDownloadURL(fileRef)
+      return url
+    } catch (err) {
+      console.error('Error getting download URL:', err)
+      error.value = 'Failed to get download URL'
+      return null
+    }
+  }
+
   return {
     // State
     suppliers,
@@ -336,6 +491,13 @@ export const useSupplierStore = defineStore('supplier', () => {
     deleteSupplier,
     fetchSupplierStats,
     clearError,
-    setSelectedSupplier
+    setSelectedSupplier,
+    
+    // Document Management Actions
+    uploadSupplierDocument,
+    fetchSupplierDocuments,
+    updateSupplierDocument,
+    deleteSupplierDocument,
+    getDocumentDownloadURL
   }
 })

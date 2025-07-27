@@ -95,7 +95,7 @@
 
       <!-- Page content -->
       <main class="flex-1 p-6">
-        <RouterView />
+        <RouterView :key="$route.fullPath" />
       </main>
     </div>
   </div>

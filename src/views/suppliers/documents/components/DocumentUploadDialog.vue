@@ -106,6 +106,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useSupplierStore } from '@/stores/supplier'
 import type { SupplierDocument } from '@/types/supplier'
 
 // Icons
@@ -130,7 +131,8 @@ const emit = defineEmits<{
   uploaded: [document: SupplierDocument]
 }>()
 
-// Note: Store integration will be implemented when Firebase Storage is set up
+// Store
+const supplierStore = useSupplierStore()
 
 // Refs
 const fileInput = ref<HTMLInputElement>()
@@ -210,47 +212,48 @@ async function uploadFiles() {
     error.value = ''
     uploadProgress.value = 0
     
-    // TODO: Implement actual file upload to Firebase Storage
-    // For now, simulate upload progress
-    const interval = setInterval(() => {
-      uploadProgress.value += 10
-      if (uploadProgress.value >= 100) {
-        clearInterval(interval)
+    const totalFiles = selectedFiles.value.length
+    let completedFiles = 0
+    
+    // Upload files one by one
+    for (const file of selectedFiles.value) {
+      try {
+        const uploadRequest = {
+          supplierId: props.supplierId,
+          fileName: file.name,
+          fileType: file.type,
+          fileSize: file.size,
+          description: description.value,
+          file: file
+        }
+        
+        const uploadedDocument = await supplierStore.uploadSupplierDocument(uploadRequest)
+        
+        if (uploadedDocument) {
+          emit('uploaded', uploadedDocument)
+          completedFiles++
+          uploadProgress.value = Math.round((completedFiles / totalFiles) * 100)
+        } else {
+          throw new Error(`Failed to upload ${file.name}`)
+        }
+      } catch (fileError) {
+        console.error(`Error uploading ${file.name}:`, fileError)
+        error.value = `Failed to upload ${file.name}. ${fileError.message || ''}`
+        break
       }
-    }, 200)
+    }
     
-    // Simulate upload delay
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // TODO: Replace with actual upload logic
-    // const uploadedDocuments = await supplierStore.uploadSupplierDocuments({
-    //   supplierId: props.supplierId,
-    //   files: selectedFiles.value,
-    //   description: description.value
-    // })
-    
-    // For now, create mock documents
-    const mockDocuments = selectedFiles.value.map(file => ({
-      documentId: Math.random().toString(36).substr(2, 9),
-      supplierId: props.supplierId,
-      fileName: file.name,
-      storagePath: `suppliers/${props.supplierId}/documents/${file.name}`,
-      fileType: file.type,
-      fileSize: file.size,
-      description: description.value,
-      uploadedBy: 'Current User', // TODO: Get from auth store
-      createdAt: new Date()
-    }))
-    
-    // Emit uploaded documents
-    mockDocuments.forEach(doc => {
-      emit('uploaded', doc)
-    })
-    
-    // Reset form
-    selectedFiles.value = []
-    description.value = ''
-    uploadProgress.value = 0
+    if (completedFiles === totalFiles) {
+      // All files uploaded successfully
+      selectedFiles.value = []
+      description.value = ''
+      uploadProgress.value = 100
+      
+      // Close dialog after a short delay
+      setTimeout(() => {
+        emit('update:open', false)
+      }, 1000)
+    }
     
   } catch (err) {
     console.error('Upload error:', err)

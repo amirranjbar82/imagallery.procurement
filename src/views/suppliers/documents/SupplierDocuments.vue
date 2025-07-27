@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6">
+  <div class="h-screen flex flex-col">
     <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div class="bg-white border-b border-gray-200 p-4 flex-shrink-0">
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-4">
           <button 
@@ -12,54 +12,27 @@
             Back to Supplier
           </button>
           <div v-if="supplier">
-            <h1 class="text-2xl font-bold text-gray-900">{{ supplier.name }} - Documents</h1>
-            <p class="text-gray-600 mt-1">Manage supplier documents and files</p>
+            <h1 class="text-xl font-bold text-gray-900">{{ supplier.name }} - Documents</h1>
+            <p class="text-gray-500 text-sm">{{ documents.length }} documents</p>
           </div>
         </div>
-        
-        <Button @click="showUploadDialog = true" class="bg-slate-900 hover:bg-slate-800">
-          <Upload class="h-4 w-4 mr-2" />
-          Upload Document
-        </Button>
       </div>
     </div>
 
-    <!-- Stats Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div class="flex items-center">
-          <FileText class="h-5 w-5 text-blue-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Total Documents</span>
+    <!-- Main Content: 2-Column Layout -->
+    <div class="flex-1 flex overflow-hidden">
+      <!-- Left Column: Document List (25%) -->
+      <div class="w-1/4 bg-white border-r border-gray-200 flex flex-col">
+        <!-- Upload Button -->
+        <div class="p-4 border-b border-gray-200">
+          <Button @click="showUploadDialog = true" class="w-full bg-slate-900 hover:bg-slate-800">
+            <Upload class="h-4 w-4 mr-2" />
+            Upload Document
+          </Button>
         </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ documents.length }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div class="flex items-center">
-          <HardDrive class="h-5 w-5 text-green-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Total Size</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ formatFileSize(totalSize) }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div class="flex items-center">
-          <Calendar class="h-5 w-5 text-purple-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Last Upload</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ lastUploadDate }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div class="flex items-center">
-          <User class="h-5 w-5 text-orange-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Contributors</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ uniqueUploaders }}</div>
-      </div>
-    </div>
 
-    <!-- Filters and Search -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <div class="flex flex-col sm:flex-row gap-4">
-        <div class="flex-1">
+        <!-- Search and Filters -->
+        <div class="p-4 border-b border-gray-200 space-y-3">
           <Input
             v-model="searchQuery"
             placeholder="Search documents..."
@@ -69,89 +42,123 @@
               <Search class="h-4 w-4 text-gray-400" />
             </template>
           </Input>
+          
+          <Select v-model="selectedFileType">
+            <SelectTrigger class="w-full">
+              <SelectValue placeholder="All file types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All file types</SelectItem>
+              <SelectItem value="pdf">PDF</SelectItem>
+              <SelectItem value="doc">Word Documents</SelectItem>
+              <SelectItem value="xls">Excel Files</SelectItem>
+              <SelectItem value="img">Images</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select v-model="selectedFileType">
-          <SelectTrigger class="w-48">
-            <SelectValue placeholder="All file types" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="">All file types</SelectItem>
-            <SelectItem value="pdf">PDF</SelectItem>
-            <SelectItem value="doc">Word Documents</SelectItem>
-            <SelectItem value="xls">Excel Files</SelectItem>
-            <SelectItem value="img">Images</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
 
-    <!-- Documents List -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-      <div class="p-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">Documents</h2>
-      </div>
-      
-      <div v-if="loading" class="p-8 text-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mx-auto"></div>
-        <p class="mt-2 text-gray-600">Loading documents...</p>
-      </div>
-      
-      <div v-else-if="filteredDocuments.length === 0" class="p-8 text-center">
-        <FileText class="h-12 w-12 text-gray-400 mx-auto mb-4" />
-        <p class="text-gray-600">No documents found</p>
-        <p class="text-sm text-gray-500 mt-1">Upload your first document to get started</p>
-      </div>
-      
-      <div v-else class="divide-y divide-gray-200">
-        <div 
-          v-for="document in filteredDocuments" 
-          :key="document.documentId"
-          class="p-4 hover:bg-gray-50 transition-colors"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <div class="flex-shrink-0">
-                <component :is="getFileIcon(document.fileType)" class="h-8 w-8 text-gray-600" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">{{ document.fileName }}</p>
-                <div class="flex items-center space-x-4 mt-1">
-                  <p class="text-xs text-gray-500">{{ formatFileSize(document.fileSize) }}</p>
-                  <p class="text-xs text-gray-500">{{ formatDate(document.createdAt) }}</p>
-                  <p class="text-xs text-gray-500">by {{ document.uploadedBy }}</p>
+        <!-- Documents List -->
+        <div class="flex-1 overflow-y-auto">
+          <div v-if="loading" class="p-8 text-center">
+            <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-slate-900 mx-auto"></div>
+            <p class="mt-2 text-sm text-gray-600">Loading...</p>
+          </div>
+          
+          <div v-else-if="filteredDocuments.length === 0" class="p-8 text-center">
+            <FileText class="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p class="text-sm text-gray-600">No documents</p>
+          </div>
+          
+          <div v-else class="divide-y divide-gray-200">
+            <div 
+              v-for="document in filteredDocuments" 
+              :key="document.documentId"
+              class="p-3 hover:bg-gray-50 cursor-pointer transition-colors"
+              :class="{ 'bg-blue-50 border-r-2 border-blue-500': selectedDocument?.documentId === document.documentId }"
+              @click="selectDocument(document)"
+            >
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <component :is="getFileIcon(document.fileType)" class="h-5 w-5 text-gray-600" />
                 </div>
-                <p v-if="document.description" class="text-xs text-gray-600 mt-1">{{ document.description }}</p>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-gray-900 truncate">{{ document.fileName }}</p>
+                  <p class="text-xs text-gray-500 mt-1">{{ formatFileSize(document.fileSize) }}</p>
+                  <p class="text-xs text-gray-500">{{ formatDate(document.createdAt) }}</p>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" @click.stop>
+                      <MoreHorizontal class="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem @click="downloadDocument(document)">
+                      <Download class="mr-2 h-4 w-4" />
+                      Download
+                    </DropdownMenuItem>
+                    <DropdownMenuItem @click="editDocument(document)">
+                      <Edit class="mr-2 h-4 w-4" />
+                      Edit Details
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem @click="deleteDocument(document)" class="text-red-600">
+                      <Trash2 class="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
-            
-            <div class="flex items-center space-x-2">
-              <Button @click="downloadDocument(document)" variant="outline" size="sm">
-                <Download class="h-4 w-4" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <MoreHorizontal class="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem @click="downloadDocument(document)">
-                    <Download class="mr-2 h-4 w-4" />
-                    Download
-                  </DropdownMenuItem>
-                  <DropdownMenuItem @click="editDocument(document)">
-                    <Edit class="mr-2 h-4 w-4" />
-                    Edit Details
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem @click="deleteDocument(document)" class="text-red-600">
-                    <Trash2 class="mr-2 h-4 w-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Column: File Preview (75%) -->
+      <div class="flex-1 bg-gray-50 flex flex-col">
+        <div v-if="!selectedDocument" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <FileText class="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Select a document to preview</h3>
+            <p class="text-gray-500">Choose a document from the list to view its contents</p>
+          </div>
+        </div>
+        
+        <div v-else class="flex-1 flex flex-col">
+          <!-- Preview Header -->
+          <div class="bg-white border-b border-gray-200 p-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-3">
+                <component :is="getFileIcon(selectedDocument.fileType)" class="h-6 w-6 text-gray-600" />
+                <div>
+                  <h3 class="font-medium text-gray-900">{{ selectedDocument.fileName }}</h3>
+                  <p class="text-sm text-gray-500">
+                    {{ formatFileSize(selectedDocument.fileSize) }} • 
+                    {{ formatDate(selectedDocument.createdAt) }} • 
+                    by {{ selectedDocument.uploadedBy }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2">
+                <Button @click="downloadDocument(selectedDocument)" variant="outline" size="sm">
+                  <Download class="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                <Button @click="editDocument(selectedDocument)" variant="outline" size="sm">
+                  <Edit class="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+              </div>
             </div>
+            <p v-if="selectedDocument.description" class="text-sm text-gray-600 mt-2">
+              {{ selectedDocument.description }}
+            </p>
+          </div>
+          
+          <!-- Preview Content -->
+          <div class="flex-1 p-4">
+            <DocumentPreview :document="selectedDocument" />
           </div>
         </div>
       </div>
@@ -182,7 +189,7 @@ import type { SupplierDocument } from '@/types/supplier'
 
 // Icons
 import { 
-  ArrowLeft, Upload, FileText, HardDrive, Calendar, User, Search,
+  ArrowLeft, Upload, FileText, Search,
   Download, Edit, MoreHorizontal, Trash2
 } from 'lucide-vue-next'
 
@@ -201,6 +208,7 @@ import {
 // Custom Components
 import DocumentUploadDialog from './components/DocumentUploadDialog.vue'
 import DocumentEditDialog from './components/DocumentEditDialog.vue'
+import DocumentPreview from './components/DocumentPreview.vue'
 
 // Router and Store
 const route = useRoute()
@@ -211,7 +219,7 @@ const { selectedSupplier: supplier, loading } = storeToRefs(supplierStore)
 // State
 const documents = ref<SupplierDocument[]>([])
 const searchQuery = ref('')
-const selectedFileType = ref('')
+const selectedFileType = ref('all')
 const showUploadDialog = ref(false)
 const showEditDialog = ref(false)
 const selectedDocument = ref<SupplierDocument | null>(null)
@@ -230,30 +238,22 @@ const filteredDocuments = computed(() => {
     )
   }
 
-  if (selectedFileType.value) {
+  if (selectedFileType.value && selectedFileType.value !== 'all') {
     filtered = filtered.filter(doc => getFileCategory(doc.fileType) === selectedFileType.value)
   }
 
   return filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 })
 
-const totalSize = computed(() => 
-  documents.value.reduce((sum, doc) => sum + doc.fileSize, 0)
-)
-
-const lastUploadDate = computed(() => {
-  if (documents.value.length === 0) return 'Never'
-  const latest = Math.max(...documents.value.map(doc => doc.createdAt.getTime()))
-  return formatDate(new Date(latest))
-})
-
-const uniqueUploaders = computed(() => 
-  new Set(documents.value.map(doc => doc.uploadedBy)).size
-)
+// Removed unused computed properties for stats since we removed the stats section
 
 // Methods
 function goBack() {
   router.push('/suppliers')
+}
+
+function selectDocument(document: SupplierDocument) {
+  selectedDocument.value = document
 }
 
 function getFileIcon(fileType: string) {
@@ -285,9 +285,24 @@ function formatDate(date: Date): string {
   }).format(date)
 }
 
-async function downloadDocument(document: SupplierDocument) {
-  // TODO: Implement download from Firebase Storage
-  console.log('Download document:', document)
+async function downloadDocument(doc: SupplierDocument) {
+  try {
+    const url = await supplierStore.getDocumentDownloadURL(doc)
+    if (url) {
+      // Create a temporary link to download the file
+      const link = window.document.createElement('a')
+      link.href = url
+      link.download = doc.fileName
+      link.target = '_blank'
+      window.document.body.appendChild(link)
+      link.click()
+      window.document.body.removeChild(link)
+    } else {
+      console.error('Failed to get download URL')
+    }
+  } catch (error) {
+    console.error('Error downloading document:', error)
+  }
 }
 
 function editDocument(document: SupplierDocument) {
@@ -297,8 +312,24 @@ function editDocument(document: SupplierDocument) {
 
 async function deleteDocument(document: SupplierDocument) {
   if (confirm(`Are you sure you want to delete "${document.fileName}"?`)) {
-    // TODO: Implement delete functionality
-    console.log('Delete document:', document)
+    try {
+      const success = await supplierStore.deleteSupplierDocument(document)
+      if (success) {
+        // Remove from local documents array
+        const index = documents.value.findIndex(d => d.documentId === document.documentId)
+        if (index !== -1) {
+          documents.value.splice(index, 1)
+        }
+        // Clear selection if deleted document was selected
+        if (selectedDocument.value?.documentId === document.documentId) {
+          selectedDocument.value = null
+        }
+      } else {
+        console.error('Failed to delete document')
+      }
+    } catch (error) {
+      console.error('Error deleting document:', error)
+    }
   }
 }
 
@@ -322,7 +353,12 @@ onMounted(async () => {
     await supplierStore.fetchSupplierById(supplierId.value)
   }
   
-  // TODO: Load documents for this supplier
-  // documents.value = await supplierStore.fetchSupplierDocuments(supplierId.value)
+  // Load documents for this supplier
+  try {
+    const loadedDocuments = await supplierStore.fetchSupplierDocuments(supplierId.value)
+    documents.value = loadedDocuments
+  } catch (error) {
+    console.error('Error loading documents:', error)
+  }
 })
 </script>
