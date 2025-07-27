@@ -8,7 +8,7 @@ import {
   type User,
   type UserCredential
 } from 'firebase/auth'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, updateDoc, collection, query, orderBy, getDocs } from 'firebase/firestore'
 import { auth, db } from '../lib/firebase'
 
 export interface UserProfile {
@@ -36,6 +36,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as User | null,
     userProfile: null as UserProfile | null,
+    users: [] as UserProfile[],
     isLoading: false,
     error: null as string | null
   }),
@@ -44,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: (state) => !!state.user,
     isAdmin: (state) => state.userProfile?.role === 'admin',
     isManager: (state) => state.userProfile?.role === 'manager',
-    canAccess: (state) => (resource: string) => {
+    canAccess: (state) => (_resource: string) => {
       if (!state.userProfile) return false
       if (state.userProfile.role === 'admin') return true
       
@@ -150,6 +151,9 @@ export const useAuthStore = defineStore('auth', {
         const userDoc = await getDoc(doc(db, 'users', uid))
         if (userDoc.exists()) {
           this.userProfile = userDoc.data() as UserProfile
+        } else {
+          // User profile doesn't exist, create a default one
+          await this.createDefaultUserProfile(uid)
         }
       } catch (error) {
         console.error('Error loading user profile:', error)
@@ -180,10 +184,43 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    setUser(user: User | null): void {
+    async createDefaultUserProfile(uid: string): Promise<void> {
+      try {
+        // Get user info from Firebase Auth
+        const user = this.user
+        if (!user) return
+
+        const defaultProfile: Omit<UserProfile, 'uid'> = {
+          email: user.email || '',
+          name: user.displayName || user.email?.split('@')[0] || 'User',
+          role: 'user', // Default role for new users
+          accessSuppliers: [],
+          accessProducts: [],
+          visibleFields: [],
+          preferences: {
+            currency: 'USD',
+            dateFormat: 'MM/DD/YYYY',
+            timezone: 'UTC',
+            language: 'en'
+          },
+          isActive: true,
+          lastLogin: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+
+        await this.createUserProfile(uid, defaultProfile)
+        console.log('Created default user profile for:', user.email)
+      } catch (error) {
+        console.error('Error creating default user profile:', error)
+        throw error
+      }
+    },
+
+    async setUser(user: User | null): Promise<void> {
       this.user = user
       if (user) {
-        this.loadUserProfile(user.uid)
+        await this.loadUserProfile(user.uid)
       } else {
         this.userProfile = null
       }
@@ -250,6 +287,34 @@ export const useAuthStore = defineStore('auth', {
         })
       } catch (error: any) {
         this.error = this.getErrorMessage(error.code)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async fetchUsers(): Promise<void> {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        // Only admins can fetch all users
+        if (!this.isAdmin) {
+          throw new Error('Insufficient permissions to view users')
+        }
+
+        const usersQuery = query(
+          collection(db, 'users'),
+          orderBy('name')
+        )
+        
+        const snapshot = await getDocs(usersQuery)
+        this.users = snapshot.docs.map(doc => ({
+          uid: doc.id,
+          ...doc.data()
+        } as UserProfile))
+      } catch (error: any) {
+        this.error = error.message || 'Failed to fetch users'
         throw error
       } finally {
         this.isLoading = false

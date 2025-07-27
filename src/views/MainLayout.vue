@@ -4,11 +4,11 @@
     <div :class="[
       'fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out',
       sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-      'lg:translate-x-0 lg:static lg:inset-0 lg:flex lg:flex-col'
+      'lg:translate-x-0'
     ]">
-      <div class="flex flex-col h-full">
+      <div class="flex flex-col h-screen">
         <!-- Logo -->
-        <div class="flex items-center justify-between h-20 px-6 border-b border-gray-200">
+        <div class="flex items-center justify-between h-20 px-6 border-b border-gray-200 flex-shrink-0">
           <div class="flex items-center">
             <img src="/logo.webp" alt="ImaGallery" class="h-16 w-auto" />
           </div>
@@ -18,13 +18,13 @@
         </div>
 
         <!-- Navigation -->
-        <nav class="flex-1 px-4 py-6 space-y-2">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
           <NavigationItem v-for="item in navigationItems" :key="item.name" :item="item" :current-route="$route.name"
             @click="sidebarOpen = false" />
         </nav>
 
         <!-- User Menu -->
-        <div class="border-t border-gray-200 p-4">
+        <div class="border-t border-gray-200 p-4 relative flex-shrink-0">
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <div class="h-8 w-8 bg-slate-900 rounded-full flex items-center justify-center">
@@ -45,9 +45,9 @@
               <MoreHorizontal class="h-4 w-4" />
             </button>
           </div>
-
-          <!-- User Dropdown -->
-          <div v-if="showUserMenu" class="mt-2 py-2 bg-white border border-gray-200 rounded-md shadow-lg">
+          
+          <!-- User Dropdown - positioned within sidebar -->
+          <div v-if="showUserMenu" class="absolute bottom-full left-4 right-4 mb-2 py-2 bg-white border border-gray-200 rounded-md shadow-lg z-50">
             <button @click="handleSignOut"
               class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
               <LogOut class="h-4 w-4 mr-2" />
@@ -62,8 +62,11 @@
     <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden">
     </div>
 
+    <!-- User menu backdrop -->
+    <div v-if="showUserMenu" @click="showUserMenu = false" class="fixed inset-0 z-30"></div>
+
     <!-- Main content -->
-    <div class="flex-1 flex flex-col lg:pl-0">
+    <div class="flex-1 flex flex-col lg:ml-64">
       <!-- Top bar -->
       <div class="bg-white shadow-sm border-b border-gray-200">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6">

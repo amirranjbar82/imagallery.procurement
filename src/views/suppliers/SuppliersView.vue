@@ -1,41 +1,121 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Suppliers</h1>
-        <p class="text-gray-600 mt-1">Manage your supplier relationships and vendor information</p>
-      </div>
-      <button class="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 flex items-center">
-        <Plus class="h-4 w-4 mr-2" />
-        Add Supplier
-      </button>
-    </div>
+  <div class="container">
+    <!-- List View -->
+    <SupplierList v-if="currentView === 'list'" @create="openCreateDialog" @view="viewSupplier" @edit="editSupplier" />
 
-    <!-- Coming Soon Card -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
-      <div class="text-center">
-        <Building2 class="h-24 w-24 mx-auto text-gray-300 mb-6" />
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Supplier Management</h2>
-        <p class="text-gray-600 mb-6 max-w-md mx-auto">
-          This section will allow you to manage suppliers, track their information, 
-          and organize your vendor relationships efficiently.
-        </p>
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-lg mx-auto">
-          <h3 class="font-medium text-blue-900 mb-2">Coming Features:</h3>
-          <ul class="text-sm text-blue-800 space-y-1 text-left">
-            <li>• Supplier registration and profiles</li>
-            <li>• Contact management and communication tracking</li>
-            <li>• Performance ratings and reviews</li>
-            <li>• Document management for certifications</li>
-            <li>• Payment terms and financial information</li>
-          </ul>
+    <!-- Detail View -->
+    <SupplierDetail v-else-if="currentView === 'detail' && selectedSupplierId" :supplier-id="selectedSupplierId"
+      @back="backToList" @edit="editSupplier" />
+
+    <!-- Create Supplier Dialog -->
+    <Dialog :open="showCreateDialog" @update:open="showCreateDialog = $event">
+      <DialogContent class="min-w-6xl p-0 overflow-hidden rounded-xl">
+        <div class="max-h-[90vh] overflow-y-auto p-6">
+          <DialogHeader>
+            <DialogTitle>Create New Supplier</DialogTitle>
+            <DialogDescription>
+              Add a new supplier to your procurement system
+            </DialogDescription>
+          </DialogHeader>
+          <SupplierForm @cancel="closeCreateDialog" @success="handleCreateSuccess" />
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Edit Supplier Dialog -->
+    <Dialog :open="showEditDialog" @update:open="showEditDialog = $event">
+      <DialogContent class="min-w-6xl p-0 overflow-hidden rounded-xl">
+        <div class="max-h-[90vh] overflow-y-auto p-6">
+          <DialogHeader>
+            <DialogTitle>Edit Supplier</DialogTitle>
+            <DialogDescription>
+              Update supplier information
+            </DialogDescription>
+          </DialogHeader>
+          <SupplierForm v-if="supplierToEdit" :supplier="supplierToEdit" @cancel="closeEditDialog"
+            @success="handleEditSuccess" />
+        </div>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Building2, Plus } from 'lucide-vue-next'
+import { ref, onMounted } from 'vue'
+import { useSupplierStore } from '@/stores/supplier'
+import type { Supplier } from '@/types/supplier'
+
+// Components
+import SupplierList from '@/views/suppliers/SupplierList.vue'
+import SupplierDetail from '@/views/suppliers/SupplierDetail.vue'
+import SupplierForm from '@/views/suppliers/SupplierForm.vue'
+
+// UI Components
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+
+// Store
+const supplierStore = useSupplierStore()
+
+// State
+const currentView = ref<'list' | 'detail'>('list')
+const selectedSupplierId = ref<string>('')
+const showCreateDialog = ref(false)
+const showEditDialog = ref(false)
+const supplierToEdit = ref<Supplier | null>(null)
+
+// Methods
+function openCreateDialog() {
+  showCreateDialog.value = true
+}
+
+function closeCreateDialog() {
+  showCreateDialog.value = false
+}
+
+function handleCreateSuccess(supplier: Supplier) {
+  closeCreateDialog()
+  // Optionally navigate to the new supplier detail
+  // viewSupplier(supplier)
+}
+
+function editSupplier(supplier: Supplier) {
+  supplierToEdit.value = supplier
+  showEditDialog.value = true
+}
+
+function closeEditDialog() {
+  showEditDialog.value = false
+  supplierToEdit.value = null
+}
+
+function handleEditSuccess(supplier: Supplier) {
+  closeEditDialog()
+  // Refresh the current view if we're viewing the edited supplier
+  if (currentView.value === 'detail' && selectedSupplierId.value === supplier.supplierId) {
+    supplierStore.setSelectedSupplier(supplier)
+  }
+}
+
+function viewSupplier(supplier: Supplier) {
+  selectedSupplierId.value = supplier.supplierId
+  supplierStore.setSelectedSupplier(supplier)
+  currentView.value = 'detail'
+}
+
+function backToList() {
+  currentView.value = 'list'
+  selectedSupplierId.value = ''
+  supplierStore.setSelectedSupplier(null)
+}
+
+// Lifecycle
+onMounted(() => {
+  // Initial data load is handled by SupplierList component
+})
 </script>

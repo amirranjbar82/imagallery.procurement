@@ -15,8 +15,8 @@ app.use(router)
 
 // Set up auth state listener
 const authStore = useAuthStore()
-onAuthStateChanged(auth, (user) => {
-  authStore.setUser(user)
+onAuthStateChanged(auth, async (user) => {
+  await authStore.setUser(user)
 })
 
 app.mount('#app')

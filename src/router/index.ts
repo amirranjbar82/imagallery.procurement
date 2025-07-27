@@ -95,6 +95,12 @@ const router = createRouter({
           name: 'settings',
           component: () => import('../views/settings/SettingsView.vue'),
           meta: { title: 'Settings', roles: ['admin', 'manager'] }
+        },
+        {
+          path: 'settings/access-control',
+          name: 'access-control',
+          component: () => import('../views/settings/UserAccessControl.vue'),
+          meta: { title: 'Access Control', roles: ['admin'] }
         }
       ]
     },

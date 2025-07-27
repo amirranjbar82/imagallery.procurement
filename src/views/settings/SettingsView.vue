@@ -8,17 +8,41 @@
 
     <!-- Settings Categories -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- User Access Control -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center">
+            <Shield class="h-6 w-6 text-blue-500 mr-3" />
+            <h3 class="text-lg font-semibold text-gray-900">User Access Control</h3>
+            <a 
+              href="#" 
+              @click.prevent="$router.push('/settings/access-control')"
+              class="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Manage User Access Control →
+            </a>
+          </div>
+        </div>
+        <p class="text-gray-600 mb-4">Control user permissions for suppliers and field visibility</p>
+        <div class="space-y-2 text-sm text-gray-500">
+          <p>• Assign suppliers to users</p>
+          <p>• Configure field-level permissions</p>
+          <p>• Apply permission presets</p>
+          <p>• Monitor user access</p>
+        </div>
+      </div>
+
       <!-- User Management -->
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div class="flex items-center mb-4">
-          <Users class="h-6 w-6 text-blue-500 mr-3" />
+          <Users class="h-6 w-6 text-green-500 mr-3" />
           <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
         </div>
-        <p class="text-gray-600 mb-4">Manage user accounts, roles, and permissions</p>
+        <p class="text-gray-600 mb-4">Manage user accounts, roles, and profiles</p>
         <div class="space-y-2 text-sm text-gray-500">
           <p>• User registration and profiles</p>
-          <p>• Role-based access control</p>
-          <p>• Permission management</p>
+          <p>• Role assignment</p>
+          <p>• Account status management</p>
           <p>• User activity monitoring</p>
         </div>
       </div>
