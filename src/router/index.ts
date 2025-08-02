@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../modules/auth/stores/auth'
 import { auth } from '../lib/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 
@@ -19,7 +19,7 @@ const router = createRouter({
     // Auth routes
     {
       path: '/auth',
-      component: () => import('../views/auth/AuthLayout.vue'),
+      component: () => import('../modules/auth/views/AuthLayout.vue'),
       meta: { requiresGuest: true },
       children: [
         {
@@ -29,17 +29,17 @@ const router = createRouter({
         {
           path: 'login',
           name: 'login',
-          component: () => import('../views/auth/LoginView.vue')
+          component: () => import('../modules/auth/views/LoginView.vue')
         },
         {
           path: 'register',
           name: 'register',
-          component: () => import('../views/auth/RegisterView.vue')
+          component: () => import('../modules/auth/views/RegisterView.vue')
         },
         {
           path: 'forgot-password',
           name: 'forgot-password',
-          component: () => import('../views/auth/ForgotPasswordView.vue')
+          component: () => import('../modules/auth/views/ForgotPasswordView.vue')
         }
       ]
     },
@@ -47,7 +47,7 @@ const router = createRouter({
     // Main application routes
     {
       path: '/',
-      component: () => import('../views/MainLayout.vue'),
+      component: () => import('../shared/views/MainLayout.vue'),
       meta: { requiresAuth: true },
       children: [
         {
@@ -57,67 +57,176 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'dashboard',
-          component: () => import('../views/DashboardView.vue'),
+          component: () => import('../shared/views/DashboardView.vue'),
           meta: { title: 'Dashboard' }
         },
+        // Organization Management
+        {
+          path: 'organization',
+          name: 'organization',
+          component: () => import('../modules/organization/views/OrganizationView.vue'),
+          meta: { title: 'Organization' }
+        },
+        {
+          path: 'organization/employees',
+          name: 'employees',
+          component: () => import('../modules/organization/views/EmployeesView.vue'),
+          meta: { title: 'Employees' }
+        },
+        {
+          path: 'organization/roles',
+          name: 'roles',
+          component: () => import('../modules/organization/views/RolesView.vue'),
+          meta: { title: 'Roles' }
+        },
+        
+        // Procurement Module
         {
           path: 'suppliers',
           name: 'suppliers',
-          component: () => import('../views/suppliers/SuppliersView.vue'),
+          component: () => import('../modules/procurement/views/suppliers/SuppliersView.vue'),
           meta: { title: 'Suppliers' }
         },
         {
           path: 'suppliers/:id',
           name: 'supplier-detail',
-          component: () => import('../views/suppliers/SupplierDetailWrapper.vue'),
+          component: () => import('../modules/procurement/views/suppliers/SupplierDetailWrapper.vue'),
           meta: { title: 'Supplier Details' }
         },
         {
           path: 'suppliers/:id/documents',
           name: 'supplier-documents',
-          component: () => import('../views/suppliers/documents/SupplierDocuments.vue'),
+          component: () => import('../modules/procurement/views/suppliers/documents/SupplierDocuments.vue'),
           meta: { title: 'Supplier Documents' }
         },
         {
           path: 'products',
           name: 'products',
-          component: () => import('../views/products/ProductsView.vue'),
+          component: () => import('../modules/procurement/views/products/ProductsView.vue'),
           meta: { title: 'Products' }
         },
         {
           path: 'orders',
           name: 'orders',
-          component: () => import('../views/orders/OrdersView.vue'),
+          component: () => import('../modules/procurement/views/orders/OrdersView.vue'),
           meta: { title: 'Orders' }
         },
         {
+          path: 'procurement/purchase-orders',
+          name: 'purchase-orders',
+          component: () => import('../modules/procurement/views/PurchaseOrdersView.vue'),
+          meta: { title: 'Purchase Orders' }
+        },
+        {
+          path: 'procurement/rfqs',
+          name: 'rfqs',
+          component: () => import('../modules/procurement/views/RfqsView.vue'),
+          meta: { title: 'RFQs' }
+        },
+        
+        // Tasks & Projects
+        {
+          path: 'tasks',
+          name: 'tasks',
+          component: () => import('../modules/tasks/views/TasksView.vue'),
+          meta: { title: 'Tasks & Projects' }
+        },
+        {
+          path: 'tasks/projects',
+          name: 'projects',
+          component: () => import('../modules/tasks/views/ProjectsView.vue'),
+          meta: { title: 'Projects' }
+        },
+        {
+          path: 'tasks/calendar',
+          name: 'calendar',
+          component: () => import('../modules/tasks/views/CalendarView.vue'),
+          meta: { title: 'Calendar' }
+        },
+        
+        // Inventory Management
+        {
+          path: 'inventory',
+          name: 'inventory',
+          component: () => import('../modules/inventory/views/InventoryView.vue'),
+          meta: { title: 'Inventory' }
+        },
+        {
+          path: 'inventory/stock',
+          name: 'stock',
+          component: () => import('../modules/inventory/views/StockView.vue'),
+          meta: { title: 'Stock Levels' }
+        },
+        {
+          path: 'inventory/warehouses',
+          name: 'warehouse',
+          component: () => import('../modules/inventory/views/WarehouseView.vue'),
+          meta: { title: 'Warehouses' }
+        },
+        
+        // Sales & CRM
+        {
+          path: 'sales',
+          name: 'sales',
+          component: () => import('../modules/sales/views/SalesView.vue'),
+          meta: { title: 'Sales' }
+        },
+        {
+          path: 'sales/customers',
+          name: 'customers',
+          component: () => import('../modules/sales/views/CustomersView.vue'),
+          meta: { title: 'Customers' }
+        },
+        {
+          path: 'sales/quotes',
+          name: 'quotes',
+          component: () => import('../modules/sales/views/QuotesView.vue'),
+          meta: { title: 'Quotes' }
+        },
+        
+        // Document Management
+        {
           path: 'documents',
           name: 'documents',
-          component: () => import('../views/documents/DocumentsView.vue'),
+          component: () => import('../modules/documents/views/DocumentsView.vue'),
           meta: { title: 'Documents' }
         },
         {
+          path: 'documents/templates',
+          name: 'templates',
+          component: () => import('../modules/documents/views/TemplatesView.vue'),
+          meta: { title: 'Templates' }
+        },
+        {
+          path: 'documents/reports',
+          name: 'document-reports',
+          component: () => import('../modules/documents/views/DocumentReportsView.vue'),
+          meta: { title: 'Document Reports' }
+        },
+        
+        // Reports & Analytics
+        {
           path: 'reports',
           name: 'reports',
-          component: () => import('../views/reports/ReportsView.vue'),
+          component: () => import('../modules/reports/views/ReportsView.vue'),
           meta: { title: 'Reports' }
         },
         {
           path: 'settings',
           name: 'settings',
-          component: () => import('../views/settings/SettingsView.vue'),
+          component: () => import('../shared/views/settings/SettingsView.vue'),
           meta: { title: 'Settings', roles: ['admin', 'manager'] }
         },
         {
           path: 'settings/access-control',
           name: 'access-control',
-          component: () => import('../views/settings/access-control/UserAccessControl.vue'),
+          component: () => import('../shared/views/settings/access-control/UserAccessControl.vue'),
           meta: { title: 'Access Control', roles: ['admin'] }
         },
         {
           path: 'settings/user-management',
           name: 'user-management',
-          component: () => import('../views/settings/user-management/UserManagement.vue'),
+          component: () => import('../shared/views/settings/user-management/UserManagement.vue'),
           meta: { title: 'User Management', roles: ['admin'] }
         }
       ]
@@ -127,13 +236,13 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('../views/NotFoundView.vue')
+      component: () => import('../shared/views/NotFoundView.vue')
     }
   ]
 })
 
 // Navigation guards
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   // Wait for initial auth state to be determined
   await getAuthStatePromise()
   

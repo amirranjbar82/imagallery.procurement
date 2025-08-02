@@ -98,5 +98,77 @@ service cloud.firestore {
       // Users can read their own field permissions
       allow read: if isUser() && resource.data.userId == request.auth.uid;
     }
+
+    // Organization Module Collections
+    // Departments collection
+    match /departments/{departmentId} {
+      allow read, write: if isManager();
+      allow read: if isUser();
+    }
+
+    // Department Assignments collection
+    match /departmentAssignments/{assignmentId} {
+      allow read, write: if isManager();
+      allow read: if isUser();
+    }
+
+    // Tasks Module Collections
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read, write: if isManager();
+      allow read, create: if isUser();
+      // Users can update tasks assigned to them or created by them
+      allow update: if isUser() && 
+        (resource.data.assigneeId == request.auth.uid || 
+         resource.data.createdBy == request.auth.uid);
+    }
+
+    // Projects collection
+    match /projects/{projectId} {
+      allow read, write: if isManager();
+      allow read: if isUser();
+      // Users can create projects if they're part of the department
+      allow create: if isUser();
+    }
+
+    // Sales Module Collections
+    // Customers collection
+    match /customers/{customerId} {
+      allow read, write: if isManager();
+      allow read, create: if isUser();
+      // Users can update customers they created
+      allow update: if isUser() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Sales Orders collection
+    match /salesOrders/{orderId} {
+      allow read, write: if isManager();
+      allow read, create: if isUser();
+      // Users can update their own sales orders
+      allow update: if isUser() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Inventory Module Collections
+    // Inventory Items collection
+    match /inventoryItems/{itemId} {
+      allow read, write: if isManager();
+      allow read: if isUser();
+      // Users can create new inventory items
+      allow create: if isUser();
+    }
+
+    // Stock Levels collection
+    match /stockLevels/{levelId} {
+      allow read, write: if isManager();
+      allow read: if isUser();
+      // Stock levels are typically system-managed
+    }
+
+    // Stock Movements collection
+    match /stockMovements/{movementId} {
+      allow read, write: if isManager();
+      allow read, create: if isUser();
+      // Users can record stock movements
+    }
   }
 }

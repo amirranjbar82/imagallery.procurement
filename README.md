@@ -1,17 +1,20 @@
-# Technical Requirements Document: Vue + Firebase Procurement System
+# Technical Requirements Document: Vue + Firebase Business Management System (ERP)
 
 ## 1. Overview
 
 ### 1.1 Purpose
-A lightweight B2B procurement and vendor management platform that enables businesses to manage suppliers, product catalogs, orders, and associated workflows including invoices, shipments, and payments.
+A comprehensive business management platform (ERP) that enables organizations to manage their operations across multiple departments and business functions. The system provides integrated modules for organizational management, procurement, task management, inventory, sales, and more.
 
 ### 1.2 Scope
-- Supplier and product catalog management
-- Order creation and tracking
-- Document management (invoices, shipments, payments)
-- Role-based access control
-- AI-assisted product catalog ingestion
-- Financial reporting and analytics
+- **Organization Management**: Department hierarchy, multi-department user assignments
+- **User Management**: Role-based access control across departments and modules
+- **Procurement Module**: Supplier management, product catalogs, orders, invoices, payments
+- **Task & Project Management**: Task tracking, project management, team collaboration
+- **Inventory Management**: Stock tracking, warehouse management, item movements
+- **Sales Management**: Customer management, sales orders, quotations, CRM features
+- **Document Management**: Centralized document storage and workflow
+- **Reporting & Analytics**: Cross-module reporting and business intelligence
+- **AI Integration**: Automated data processing and intelligent insights
 
 ### 1.3 Technology Stack
 - **Frontend**: Vue 3, TypeScript, ShadCN-Vue, Pinia, Vue Router
@@ -23,44 +26,150 @@ A lightweight B2B procurement and vendor management platform that enables busine
 
 ## 2. Functional Requirements
 
-### 2.1 User Management
-- **Authentication**: Email/password and Google OAuth
-- **Roles**: Admin, Manager, User, Viewer
-- **Access Control**: Users can only access assigned suppliers and products
-- **Field Visibility**: Configurable field-level permissions per user
+### 2.1 Organization Management
+- **Company Structure**: Hierarchical department organization
+- **Department Creation**: Create departments with parent-child relationships
+- **Department Hierarchy**: Support for multi-level organizational structure
+- **Department Permissions**: Module access and permissions at department level
+- **Cross-Department Visibility**: Configure inter-department data sharing
+- **Budget Management**: Department-level budget allocation and tracking
 
-### 2.2 Supplier Management
+### 2.2 User Management
+- **Authentication**: Email/password and Google OAuth
+- **Roles**: Super Admin, Admin, Manager, User, Viewer
+- **Multi-Department Assignment**: Users can belong to multiple departments
+- **Primary Department**: Designate primary department for default permissions
+- **Role per Department**: Different roles in different departments
+- **Access Control**: Users access data based on department assignments and roles
+- **Field Visibility**: Configurable field-level permissions per user and department
+- **User Delegation**: Temporary access delegation and coverage assignments
+
+### 2.3 Procurement Module
+
+#### 2.3.1 Supplier Management
 - **CRUD Operations**: Create, read, update, delete suppliers
 - **Required Data**: Company info, contact details, payment terms, communication preferences
 - **Status Management**: Active, inactive, pending approval
 - **Categorization**: Tags and custom fields for organization
-- **Document Management**: Store and manage supplier-specific documents like catalogs, certifications, and agreements.
+- **Document Management**: Store and manage supplier-specific documents like catalogs, certifications, and agreements
+- **Supplier Performance**: Rating, delivery tracking, quality metrics
 
-### 2.3 Product Catalog Management
+#### 2.3.2 Product Catalog Management
 - **Product Groups**: Organize products into catalogs by supplier
 - **Product Data**: SKU, pricing, specifications, images, categories, inventory info
 - **AI Ingestion**: Upload PDF/Excel catalogs for automatic product extraction
 - **Approval Workflow**: Review and approve AI-extracted products before publishing
 - **Bulk Operations**: Import/export multiple products
+- **Price Management**: Historical pricing, price breaks, currency handling
 
-### 2.4 Order Management
+#### 2.3.3 Purchase Order Management
 - **Order Creation**: Select supplier, add line items with quantities and pricing
 - **Order Tracking**: Status progression from draft to completed
-- **Approval Workflow**: Multi-level approvals based on order value
+- **Approval Workflow**: Multi-level approvals based on order value and department
 - **Line Item Management**: Modify quantities, prices, delivery dates
 - **Order History**: Complete audit trail of changes
+- **Integration**: Link to inventory and payment modules
 
-### 2.5 Document Management
+#### 2.3.4 Invoice & Payment Processing
 - **Invoice Processing**: Link invoices to orders, track payment status
 - **Shipment Tracking**: Record shipment details, track delivery status
 - **Payment Records**: Track payments with compliance information
 - **File Attachments**: Upload and link documents to orders/invoices/shipments
+- **Three-Way Matching**: PO, Receipt, Invoice reconciliation
 
-### 2.6 Reporting
+#### 2.3.5 Procurement Reporting
 - **SOA Reports**: Statement of Actual costs per shipment
 - **Spend Analysis**: Supplier spend breakdown and trends
 - **Order Analytics**: Order volume, value, and completion metrics
+- **Compliance Reports**: Audit trails and regulatory reports
 - **Export Capabilities**: PDF, Excel, CSV formats
+
+### 2.4 Task & Project Management Module
+
+#### 2.4.1 Task Management
+- **Task Creation**: Create, assign, and track individual tasks
+- **Task Hierarchies**: Parent-child task relationships and subtasks
+- **Status Tracking**: To-do, In Progress, Review, Completed, Cancelled
+- **Priority Management**: High, Medium, Low priority assignments
+- **Due Date Management**: Deadline tracking and notifications
+- **Assignment & Ownership**: Multi-user task assignment and responsibility
+
+#### 2.4.2 Project Management
+- **Project Creation**: Define projects with scope, timeline, and resources
+- **Project Templates**: Reusable project structures and workflows
+- **Gantt Charts**: Visual project timeline and dependency management
+- **Resource Allocation**: Assign team members and track utilization
+- **Milestone Tracking**: Key deliverable and checkpoint management
+- **Project Reporting**: Progress, resource utilization, and completion metrics
+
+#### 2.4.3 Team Collaboration
+- **Comments & Updates**: Task and project communication threads
+- **File Sharing**: Attach documents and files to tasks/projects
+- **Time Tracking**: Log time spent on tasks and projects
+- **Notifications**: Real-time updates and deadline reminders
+- **Activity Feeds**: Team activity and progress visibility
+
+### 2.5 Inventory Management Module
+
+#### 2.5.1 Stock Management
+- **Item Master**: Maintain inventory items with specifications and attributes
+- **Stock Levels**: Real-time stock quantities and availability
+- **Multi-Location**: Support for multiple warehouses and storage locations
+- **Stock Movements**: Track all inventory transactions (in, out, transfers)
+- **Reorder Management**: Automatic reorder points and purchase suggestions
+- **Batch/Serial Tracking**: Track items by batch numbers or serial numbers
+
+#### 2.5.2 Warehouse Management
+- **Location Management**: Define warehouse zones, aisles, and storage bins
+- **Receiving**: Process incoming shipments and update inventory
+- **Picking & Packing**: Optimize picking routes and packing processes
+- **Cycle Counting**: Regular inventory audits and discrepancy management
+- **Inventory Adjustments**: Manual stock adjustments with approval workflows
+
+#### 2.5.3 Inventory Reporting
+- **Stock Reports**: Current stock levels, aging, and turnover analysis
+- **Movement Reports**: Detailed transaction histories and trends
+- **Valuation Reports**: Inventory valuation using various costing methods
+- **ABC Analysis**: Categorize items by importance and value
+
+### 2.6 Sales Management Module
+
+#### 2.6.1 Customer Management (CRM)
+- **Customer Profiles**: Comprehensive customer information and history
+- **Contact Management**: Multiple contacts per customer organization
+- **Customer Hierarchy**: Parent-child customer relationships
+- **Credit Management**: Credit limits, terms, and payment history
+- **Customer Communications**: Email, phone, and meeting tracking
+
+#### 2.6.2 Sales Order Management
+- **Quotation Management**: Create and track customer quotations
+- **Sales Order Processing**: Convert quotes to orders with approval workflows
+- **Order Fulfillment**: Integration with inventory for order completion
+- **Delivery Management**: Schedule and track customer deliveries
+- **Sales Returns**: Process returns and credits
+
+#### 2.6.3 Sales Analytics
+- **Sales Reporting**: Revenue, margins, and performance metrics
+- **Customer Analytics**: Customer profitability and behavior analysis
+- **Sales Forecasting**: Predictive analytics for sales planning
+- **Territory Management**: Sales territory and representative performance
+
+### 2.7 Document Management System
+- **Centralized Storage**: Single repository for all business documents
+- **Document Categories**: Organize by type, department, or project
+- **Version Control**: Track document versions and revision history
+- **Access Control**: Role-based document access and permissions
+- **Search & Indexing**: Full-text search across all documents
+- **Workflow Integration**: Link documents to business processes
+- **Digital Signatures**: Electronic signature capabilities
+
+### 2.8 Reporting & Analytics
+- **Cross-Module Reporting**: Integrated reports across all business functions
+- **Dashboard Creation**: Customizable dashboards for different roles
+- **Key Performance Indicators**: Track business metrics and KPIs
+- **Data Export**: Multiple export formats (PDF, Excel, CSV, JSON)
+- **Scheduled Reports**: Automated report generation and distribution
+- **Advanced Analytics**: Trend analysis and predictive insights
 
 ---
 
@@ -68,16 +177,42 @@ A lightweight B2B procurement and vendor management platform that enables busine
 
 ### 3.1 Core Entities
 
+**Departments**
+- `departmentId` - Unique identifier
+- `name` - Department name
+- `code` - Department code/abbreviation
+- `description` - Department description
+- `parentDepartmentId` - Parent department (for hierarchy)
+- `level` - Hierarchy level (0 = root)
+- `path` - Full hierarchy path
+- `manager` - Department manager user ID
+- `budget` - Department budget allocation
+- `costCenter` - Cost center code
+- `location` - Physical location
+- `moduleAccess` - Array of accessible modules
+- `permissions` - Department-level permissions
+- `isActive` - Department status
+- `createdBy` - User who created the department
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+
 **Users**
 - `uid` - Unique identifier
 - `email` - Primary email address
 - `name` - Display name
-- `role` - Admin, Manager, User, Viewer
-- `department` - Optional department assignment
+- `globalRole` - Super Admin, Admin, Manager, User, Viewer
+- `primaryDepartmentId` - Primary department assignment
+- `departmentAssignments` - Array of department assignments
+  - `departmentId` - Department ID
+  - `role` - Role in this department
+  - `permissions` - Department-specific permissions
+  - `assignedDate` - Assignment date
+  - `isActive` - Assignment status
 - `accessSuppliers` - Array of accessible supplier IDs
 - `accessProducts` - Array of accessible product IDs or 'all'
 - `visibleFields` - Array of product/order fields visible to user
 - `preferences` - User preferences (currency, date format, timezone, language)
+- `delegations` - Array of active delegations
 - `isActive` - Account status
 - `lastLogin` - Last login timestamp
 - `createdAt` - Account creation date
@@ -302,12 +437,201 @@ A lightweight B2B procurement and vendor management platform that enables busine
 - `createdAt` - Creation timestamp
 - `updatedAt` - Last update timestamp
 
+**Tasks**
+- `taskId` - Unique identifier
+- `title` - Task title
+- `description` - Task description
+- `projectId` - Reference to parent project (optional)
+- `parentTaskId` - Reference to parent task (for subtasks)
+- `assignedTo` - Array of assigned user IDs
+- `assignedBy` - User who assigned the task
+- `departmentId` - Department assignment
+- `status` - To-do, In Progress, Review, Completed, Cancelled
+- `priority` - High, Medium, Low
+- `dueDate` - Task due date
+- `estimatedHours` - Estimated time to complete
+- `actualHours` - Actual time spent
+- `tags` - Array of task tags
+- `attachments` - Array of file attachments
+- `comments` - Array of task comments
+- `checklist` - Array of subtask items
+- `dependencies` - Array of dependent task IDs
+- `completedAt` - Completion timestamp
+- `createdBy` - User who created the task
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+
+**Projects**
+- `projectId` - Unique identifier
+- `name` - Project name
+- `description` - Project description
+- `departmentId` - Owning department
+- `projectManager` - Project manager user ID
+- `teamMembers` - Array of team member user IDs
+- `status` - Planning, Active, On-hold, Completed, Cancelled
+- `priority` - High, Medium, Low
+- `startDate` - Project start date
+- `endDate` - Project end date
+- `budget` - Project budget allocation
+- `actualCost` - Actual project cost
+- `progress` - Completion percentage
+- `milestones` - Array of project milestones
+- `tags` - Array of project tags
+- `attachments` - Array of project documents
+- `templateId` - Reference to project template (if used)
+- `createdBy` - User who created the project
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+
+**InventoryItems**
+- `itemId` - Unique identifier
+- `sku` - Stock keeping unit
+- `name` - Item name
+- `description` - Item description
+- `category` - Item category
+- `subcategory` - Item subcategory
+- `brand` - Brand name
+- `model` - Model number
+- `specifications` - Technical specifications
+- `unitOfMeasure` - Base unit (each, kg, liter, etc.)
+- `costPrice` - Average cost price
+- `sellPrice` - Standard selling price
+- `currency` - Price currency
+- `supplierId` - Primary supplier reference
+- `alternateSuppliers` - Array of alternate supplier IDs
+- `reorderPoint` - Minimum stock level
+- `reorderQuantity` - Standard reorder quantity
+- `leadTime` - Supplier lead time in days
+- `serialTracked` - Whether item requires serial tracking
+- `batchTracked` - Whether item requires batch tracking
+- `status` - Active, Inactive, Discontinued
+- `images` - Array of item images
+- `documents` - Array of item documents
+- `createdBy` - User who created the item
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+
+**StockLevels**
+- `stockId` - Unique identifier
+- `itemId` - Reference to inventory item
+- `locationId` - Warehouse/location reference
+- `quantityOnHand` - Current stock quantity
+- `quantityReserved` - Reserved quantity (allocated to orders)
+- `quantityAvailable` - Available quantity (on hand - reserved)
+- `quantityOnOrder` - Quantity on purchase orders
+- `lastStockTake` - Last physical count date
+- `lastMovementDate` - Last stock movement date
+- `averageCost` - Weighted average cost
+- `totalValue` - Total stock value
+- `updatedAt` - Last update timestamp
+
+**StockMovements**
+- `movementId` - Unique identifier
+- `itemId` - Reference to inventory item
+- `locationId` - Warehouse/location reference
+- `movementType` - Receipt, Issue, Transfer, Adjustment, Count
+- `referenceType` - PO, SO, Transfer, Adjustment
+- `referenceId` - Reference document ID
+- `quantity` - Movement quantity (positive or negative)
+- `unitCost` - Cost per unit
+- `totalCost` - Total movement cost
+- `batchNumber` - Batch number (if applicable)
+- `serialNumbers` - Array of serial numbers (if applicable)
+- `reason` - Movement reason/description
+- `processedBy` - User who processed the movement
+- `processedAt` - Movement timestamp
+- `createdAt` - Creation timestamp
+
+**Customers**
+- `customerId` - Unique identifier
+- `customerNumber` - Customer reference number
+- `name` - Customer/company name
+- `type` - Individual, Company, Government
+- `parentCustomerId` - Parent customer (for subsidiaries)
+- `contacts` - Array of customer contacts
+  - `contactId` - Contact identifier
+  - `name` - Contact name
+  - `title` - Job title
+  - `email` - Email address
+  - `phone` - Phone number
+  - `isPrimary` - Primary contact flag
+- `addresses` - Array of customer addresses
+  - `addressId` - Address identifier
+  - `type` - Billing, Shipping, Both
+  - `street` - Street address
+  - `city` - City
+  - `state` - State/province
+  - `postalCode` - Postal code
+  - `country` - Country
+  - `isPrimary` - Primary address flag
+- `paymentTerms` - Payment terms (e.g., "Net 30")
+- `creditLimit` - Credit limit amount
+- `currency` - Primary currency
+- `taxId` - Tax identification number
+- `industry` - Industry category
+- `website` - Company website
+- `notes` - Customer notes
+- `status` - Active, Inactive, Prospect, Blocked
+- `rating` - Customer rating (1-5 stars)
+- `totalSales` - Total sales amount
+- `totalOrders` - Total number of orders
+- `lastOrderDate` - Last order date
+- `assignedSalesRep` - Assigned sales representative
+- `createdBy` - User who created the record
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+
+**SalesOrders**
+- `salesOrderId` - Unique identifier
+- `orderNumber` - Sales order number
+- `customerId` - Reference to customer
+- `contactId` - Customer contact reference
+- `orderDate` - Order date
+- `requestedDeliveryDate` - Requested delivery date
+- `promisedDeliveryDate` - Promised delivery date
+- `status` - Draft, Confirmed, In-production, Shipped, Delivered, Cancelled
+- `priority` - Low, Medium, High, Urgent
+- `salesRep` - Assigned sales representative
+- `lineItems` - Array of order line items
+  - `lineId` - Line item identifier
+  - `itemId` - Reference to inventory item
+  - `itemName` - Item name snapshot
+  - `sku` - SKU snapshot
+  - `quantity` - Ordered quantity
+  - `unitPrice` - Unit selling price
+  - `discount` - Line discount percentage
+  - `lineTotal` - Line total amount
+  - `deliveryDate` - Line-specific delivery date
+  - `status` - Line item status
+- `subtotal` - Order subtotal
+- `discountAmount` - Total discount amount
+- `taxAmount` - Tax amount
+- `shippingCost` - Shipping cost
+- `totalAmount` - Total order amount
+- `currency` - Order currency
+- `shippingAddress` - Delivery address
+- `billingAddress` - Billing address
+- `shippingMethod` - Shipping method
+- `trackingNumber` - Shipping tracking number
+- `customerPO` - Customer purchase order reference
+- `quotationId` - Reference to source quotation
+- `terms` - Order terms and conditions
+- `comments` - Array of order comments
+- `attachments` - Array of attached files
+- `invoiceIds` - Array of linked invoice IDs
+- `shipmentIds` - Array of linked shipment IDs
+- `createdBy` - User who created the order
+- `assignedTo` - Assigned order processor
+- `createdAt` - Creation timestamp
+- `updatedAt` - Last update timestamp
+- `completedAt` - Completion timestamp
+
 **Reports**
 - `reportId` - Unique identifier
-- `type` - SOA, Spend-analysis, Supplier-performance, Inventory
+- `type` - SOA, Spend-analysis, Supplier-performance, Inventory, Sales, Tasks
 - `title` - Report title
-- `shipmentId` - Reference to shipment (for SOA reports)
-- `orderId` - Reference to order
+- `moduleType` - Source module (Procurement, Sales, Inventory, Tasks)
+- `referenceId` - Reference to source document
 - `data` - Report data structure
   - `summary` - Summary information
   - `details` - Detailed data
@@ -322,12 +646,49 @@ A lightweight B2B procurement and vendor management platform that enables busine
 - `createdAt` - Creation timestamp
 
 ### 3.2 Relationships
+
+#### Organization & User Management
+- Departments → Departments (one-to-many, hierarchical)
+- Departments → Users (one-to-many via department assignments)
+- Users → Departments (many-to-many via department assignments)
+- Users → Tasks (many-to-many via assignments)
+- Users → Projects (many-to-many via team membership)
+
+#### Procurement Module
 - Users → Suppliers (many-to-many via access control)
 - Suppliers → Product Groups (one-to-many)
 - Product Groups → Products (one-to-many)
 - Orders → Suppliers (many-to-one)
 - Orders → Products (many-to-many via line items)
 - Orders → Invoices/Shipments/Payments (one-to-many)
+- Suppliers → SupplierDocuments (one-to-many)
+
+#### Task & Project Management
+- Projects → Tasks (one-to-many)
+- Tasks → Tasks (one-to-many, parent-child hierarchy)
+- Projects → Departments (many-to-one)
+- Tasks → Departments (many-to-one)
+- Users → Projects (many-to-many as project managers/team members)
+
+#### Inventory Management
+- InventoryItems → Suppliers (many-to-one for primary supplier)
+- InventoryItems → StockLevels (one-to-many by location)
+- InventoryItems → StockMovements (one-to-many)
+- StockMovements → Orders (many-to-one for receipts)
+- StockMovements → SalesOrders (many-to-one for issues)
+
+#### Sales Management
+- Customers → SalesOrders (one-to-many)
+- SalesOrders → InventoryItems (many-to-many via line items)
+- SalesOrders → Users (many-to-one for sales rep assignment)
+- Customers → Users (many-to-one for sales rep assignment)
+
+#### Cross-Module Integration
+- Orders → InventoryItems (many-to-many via products)
+- SalesOrders → StockMovements (one-to-many for inventory issues)
+- Projects → Orders (one-to-many for project-specific procurement)
+- Tasks → All Modules (many-to-many via attachments and references)
+- Reports → All Modules (many-to-one based on report type)
 
 ---
 

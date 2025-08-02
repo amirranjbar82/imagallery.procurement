@@ -5,7 +5,7 @@ import './style.css'
 import App from './App.vue'
 import router from './router'
 import { auth } from './lib/firebase'
-import { useAuthStore } from './stores/auth'
+import { useAuthStore } from './modules/auth/stores/auth'
 
 const app = createApp(App)
 const pinia = createPinia()
