@@ -243,18 +243,7 @@
                 Department Head
               </h4>
               <p class="text-gray-600">
-                {{ selectedDepartment.departmentHead || 'Not assigned' }}
-              </p>
-            </div>
-
-            <!-- Budget Info -->
-            <div class="border-t pt-4">
-              <h4 class="font-medium text-gray-900 mb-2 flex items-center">
-                <DollarSign class="h-4 w-4 mr-2" />
-                Budget (% of Sales)
-              </h4>
-              <p class="text-gray-600">
-                {{ selectedDepartment.budget ? `${selectedDepartment.budget}%` : 'No budget set' }}
+                {{ getDepartmentHeadName(selectedDepartment.departmentHead) }}
               </p>
             </div>
 
@@ -278,10 +267,10 @@
     <!-- Create Department Dialog -->
     <Dialog v-model:open="showCreateDepartment">
       <DialogContent class="sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader class="pb-8">
           <DialogTitle>Create New Department</DialogTitle>
         </DialogHeader>
-        <form @submit.prevent="handleCreateDepartment" class="space-y-4">
+        <form @submit.prevent="handleCreateDepartment" class="space-y-6 pt-2">
           <div>
             <Label for="name">Department Name</Label>
             <Input id="name" v-model="newDepartment.name" required />
@@ -308,8 +297,27 @@
               </SelectContent>
             </Select>
           </div>
+          <div>
+            <Label for="departmentHead">Department Head</Label>
+            <Select v-model="newDepartment.departmentHead">
+              <SelectTrigger>
+                <SelectValue placeholder="Select department head (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem 
+                  v-for="user in users" 
+                  :key="user.uid"
+                  :value="user.uid"
+                >
+                  {{ user.name }} ({{ user.email }})
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <DialogFooter>
-            <Button type="button" variant="outline" @click="showCreateDepartment = false">
+            <Button type="button" variant="outline" @click="cancelCreateDepartment">
               Cancel
             </Button>
             <Button type="submit" :disabled="loading">
@@ -325,6 +333,9 @@
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Department</DialogTitle>
+          <DialogDescription>
+            Update department information and settings.
+          </DialogDescription>
         </DialogHeader>
         <form @submit.prevent="updateDepartment" class="space-y-4">
           <div class="space-y-2">
@@ -366,35 +377,22 @@
           <div class="grid grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="edit-head">Department Head</Label>
-              <Input
-                id="edit-head"
-                v-model="editForm.departmentHead"
-                placeholder="Enter department head"
-              />
+              <Select v-model="editForm.departmentHead">
+                <SelectTrigger>
+                  <SelectValue placeholder="Select department head (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem 
+                    v-for="user in users" 
+                    :key="user.uid"
+                    :value="user.uid"
+                  >
+                    {{ user.name }} ({{ user.email }})
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <div class="space-y-2">
-              <Label for="edit-budget">Budget</Label>
-              <Input
-                id="edit-budget"
-                v-model.number="editForm.budget"
-                type="number"
-                placeholder="0"
-              />
-            </div>
-          </div>
-          <div class="space-y-2">
-            <Label for="edit-currency">Currency</Label>
-            <Select v-model="editForm.currency">
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">USD</SelectItem>
-                <SelectItem value="EUR">EUR</SelectItem>
-                <SelectItem value="GBP">GBP</SelectItem>
-                <SelectItem value="IRR">IRR</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <div class="flex items-center space-x-2">
             <input
@@ -557,7 +555,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Plus, Edit, Users, Building2, UserCheck, DollarSign, InfoIcon } from 'lucide-vue-next'
+import { Plus, Edit, Users, Building2, UserCheck, InfoIcon } from 'lucide-vue-next'
 import { useOrganizationStore } from '../stores/organization'
 import { useAuthStore } from '@/modules/auth/stores/auth'
 import type { Department } from '../types/organization'
@@ -590,8 +588,6 @@ const newDepartment = ref({
   description: '',
   parentDepartmentId: 'none',
   departmentHead: '',
-  budget: 0,
-  currency: 'USD',
   permissions: {
     canViewOtherDepartments: false,
     canManageSubDepartments: false,
@@ -631,6 +627,27 @@ const flatDepartmentList = computed(() => {
 })
 
 // Methods
+function cancelCreateDepartment() {
+  // Reset form
+  newDepartment.value = {
+    name: '',
+    description: '',
+    parentDepartmentId: 'none',
+    departmentHead: '',
+    permissions: {
+      canViewOtherDepartments: false,
+      canManageSubDepartments: false,
+      canApproveBudget: false,
+      allowedModules: []
+    },
+    isActive: true,
+    createdBy: ''
+  }
+  
+  // Close dialog
+  showCreateDepartment.value = false
+}
+
 async function handleCreateDepartment() {
   try {
     // Check for duplicate department names
@@ -652,19 +669,15 @@ async function handleCreateDepartment() {
     
     await organizationStore.createDepartment(departmentData)
     
-    // Show success message
-    alert(`Department "${newDepartment.value.name}" has been created successfully!`)
-    
-    // Close dialog
+    // Close dialog first
     showCreateDepartment.value = false
+    
     // Reset form
     newDepartment.value = {
       name: '',
       description: '',
       parentDepartmentId: 'none',
       departmentHead: '',
-      budget: 0,
-      currency: 'USD',
       permissions: {
         canViewOtherDepartments: false,
         canManageSubDepartments: false,
@@ -689,8 +702,6 @@ const editForm = ref({
   name: '',
   description: '',
   departmentHead: '',
-  budget: 0,
-  currency: 'USD',
   isActive: true,
   parentDepartmentId: 'none' as string
 })
@@ -702,9 +713,7 @@ function editDepartment() {
   editForm.value = {
     name: selectedDepartment.value.name,
     description: selectedDepartment.value.description || '',
-    departmentHead: selectedDepartment.value.departmentHead || '',
-    budget: selectedDepartment.value.budget || 0,
-    currency: selectedDepartment.value.currency || 'USD',
+    departmentHead: selectedDepartment.value.departmentHead || 'none',
     isActive: selectedDepartment.value.isActive,
     parentDepartmentId: selectedDepartment.value.parentDepartmentId || 'none'
   }
@@ -718,7 +727,8 @@ async function updateDepartment() {
   try {
     const updateData = {
       ...editForm.value,
-      parentDepartmentId: editForm.value.parentDepartmentId === 'none' ? null : editForm.value.parentDepartmentId
+      parentDepartmentId: editForm.value.parentDepartmentId === 'none' ? null : editForm.value.parentDepartmentId,
+      departmentHead: editForm.value.departmentHead === 'none' ? null : editForm.value.departmentHead
     }
     
     await organizationStore.updateDepartment(selectedDepartment.value.departmentId, updateData)
@@ -939,6 +949,19 @@ function showDeleteDialog(dept: Department) {
   showDeleteConfirmation(dept)
 }
 
+// Get department head name from user ID
+function getDepartmentHeadName(departmentHeadId: string | null | undefined): string {
+  if (!departmentHeadId) return 'Not assigned'
+  
+  const user = users.value.find(u => u.uid === departmentHeadId)
+  if (user) {
+    return `${user.name} (${user.email})`
+  }
+  
+  // If user not found, return the ID or a placeholder
+  return departmentHeadId || 'Not assigned'
+}
+
 // Helper functions for different view modes
 function getDepartmentUserCount(departmentId: string): number {
   // For now return a mock count - this would be calculated from user assignments
@@ -953,12 +976,11 @@ function getDepartmentUserCount(departmentId: string): number {
 onMounted(async () => {
   await organizationStore.fetchDepartments()
   // Fetch users for Department Head selection
-  if (authStore.isAdmin) {
-    try {
-      await authStore.fetchUsers()
-    } catch (error) {
-      console.error('Failed to fetch users:', error)
-    }
+  try {
+    await authStore.fetchUsers()
+    console.log('Users fetched:', authStore.users.length)
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
   }
   
   // Debug logging
