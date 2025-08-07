@@ -184,7 +184,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import { useSupplierStore } from '@/stores/supplier'
+import { useSupplierStore } from '@/modules/procurement/stores/supplier'
 import type { SupplierDocument } from '@/types/supplier'
 
 // Icons

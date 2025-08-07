@@ -32,6 +32,7 @@
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Created By</TableHead>
               <TableHead>Last Login</TableHead>
               <TableHead class="text-right">Actions</TableHead>
             </TableRow>
@@ -46,22 +47,46 @@
                 </Badge>
               </TableCell>
               <TableCell>
-                <Badge :variant="user.isActive ? 'default' : 'secondary'">
-                  {{ user.isActive ? 'Active' : 'Inactive' }}
+                <div class="flex flex-col space-y-1">
+                  <Badge :variant="user.isActive ? 'default' : 'secondary'">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                  </Badge>
+                  <span v-if="!user.isActive && user.createdBy === 'self-signup'" class="text-xs text-amber-600">
+                    Pending Activation
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <Badge :variant="user.createdBy === 'admin' ? 'outline' : 'secondary'">
+                  {{ user.createdBy === 'admin' ? 'Admin' : 'Self-Signup' }}
                 </Badge>
               </TableCell>
               <TableCell>
                 {{ user.lastLogin ? formatDate(user.lastLogin) : 'Never' }}
               </TableCell>
               <TableCell class="text-right">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  @click="editUser(user)"
-                  v-if="authStore.isAdmin && user.uid !== authStore.user?.uid"
-                >
-                  <Edit class="h-4 w-4" />
-                </Button>
+                <div class="flex space-x-2">
+                  <!-- Activation/Deactivation Button -->
+                  <Button 
+                    v-if="authStore.isAdmin && user.uid !== authStore.user?.uid"
+                    variant="ghost" 
+                    size="sm" 
+                    @click="toggleUserActivation(user)"
+                    :disabled="authStore.isLoading"
+                  >
+                    <UserCheck v-if="!user.isActive" class="h-4 w-4 text-green-600" />
+                    <UserX v-else class="h-4 w-4 text-red-600" />
+                  </Button>
+                  <!-- Edit Role Button -->
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    @click="editUser(user)"
+                    v-if="authStore.isAdmin && user.uid !== authStore.user?.uid"
+                  >
+                    <Edit class="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           </TableBody>
@@ -205,7 +230,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge'
 
 // Icons
-import { UserPlus, Edit, Loader2, ArrowLeft } from 'lucide-vue-next'
+import { UserPlus, Edit, Loader2, ArrowLeft, UserCheck, UserX } from 'lucide-vue-next'
 
 const authStore = useAuthStore()
 
@@ -236,41 +261,63 @@ const loadUsers = async () => {
 const createUser = async () => {
   try {
     const userRole = newUser.value.role as 'admin' | 'manager' | 'user' | 'viewer'
+    const userName = newUser.value.name
     
-    switch (userRole) {
-      case 'admin':
-        await authStore.createAdminUser(newUser.value.email, newUser.value.password, newUser.value.name)
-        break
-      
-      case 'user':
-        // Default role - just create the user
-        await authStore.signUp(newUser.value.email, newUser.value.password, newUser.value.name)
-        break
-      
-      case 'manager':
-      case 'viewer':
-        // Create user with default role, then update role
-        await authStore.signUp(newUser.value.email, newUser.value.password, newUser.value.name)
-        // TODO: Implement role update functionality
-        // You'd need to get the UID and update the role in Firestore
-        console.warn(`Role update for ${userRole} users not yet implemented`)
-        break
-      
-      default:
-        throw new Error(`Unsupported role: ${userRole}`)
-    }
+    // Use the unified createUser method that handles session restoration
+    await authStore.createUser(
+      newUser.value.email, 
+      newUser.value.password, 
+      newUser.value.name, 
+      userRole
+    )
     
+    // Success - close modal and refresh
     showCreateModal.value = false
     newUser.value = { name: '', email: '', password: '', role: 'user' }
     await loadUsers()
-  } catch (error) {
+    
+    // Show success message
+    alert(`کاربر ${userName} با موفقیت ایجاد شد و در انتظار فعال‌سازی است.`)
+    
+  } catch (error: any) {
     console.error('Error creating user:', error)
+    
+    // Show user-friendly error message
+    let errorMessage = 'خطا در ایجاد کاربر'
+    
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'این ایمیل قبلاً استفاده شده است. لطفاً ایمیل دیگری انتخاب کنید.'
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'رمز عبور باید حداقل ۶ کاراکتر باشد.'
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'فرمت ایمیل نامعتبر است.'
+    } else if (error.message) {
+      errorMessage = error.message
+    }
+    
+    alert(errorMessage)
   }
 }
 
 const editUser = (user: UserProfile) => {
   editingUser.value = { ...user }
   showEditModal.value = true
+}
+
+const toggleUserActivation = async (user: UserProfile) => {
+  try {
+    if (user.isActive) {
+      await authStore.deactivateUser(user.uid)
+      console.log(`User ${user.name} has been deactivated`)
+    } else {
+      await authStore.activateUser(user.uid)
+      console.log(`User ${user.name} has been activated`)
+    }
+    // Refresh the users list
+    await loadUsers()
+  } catch (error) {
+    console.error('Error toggling user activation:', error)
+  }
 }
 
 const updateUserRole = async () => {

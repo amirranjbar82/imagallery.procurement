@@ -173,15 +173,67 @@ const router = createRouter({
         },
         {
           path: 'sales/customers',
-          name: 'customers',
+          name: 'sales-customers',
           component: () => import('../modules/sales/views/CustomersView.vue'),
-          meta: { title: 'Customers' }
+          meta: { title: 'Sales Customers' }
         },
         {
           path: 'sales/quotes',
           name: 'quotes',
           component: () => import('../modules/sales/views/QuotesView.vue'),
           meta: { title: 'Quotes' }
+        },
+        
+        // Customer Management
+        {
+          path: 'customers',
+          name: 'customers',
+          component: () => import('../modules/customers/views/CustomersView.vue'),
+          meta: { title: 'Customer Management' }
+        },
+        {
+          path: 'customers/interactions',
+          name: 'customer-interactions',
+          component: () => import('../modules/customers/views/CustomersView.vue'),
+          meta: { title: 'Customer Interactions' }
+        },
+        {
+          path: 'customers/reports',
+          name: 'customer-reports',
+          component: () => import('../modules/customers/views/CustomersView.vue'),
+          meta: { title: 'Customer Reports' }
+        },
+        
+        // Accounting & Finance
+        {
+          path: 'accounting',
+          name: 'accounting',
+          component: () => import('../modules/accounting/views/AccountingView.vue'),
+          meta: { title: 'Accounting Dashboard' }
+        },
+        {
+          path: 'accounting/accounts',
+          name: 'accounts',
+          component: () => import('../modules/accounting/views/AccountingView.vue'),
+          meta: { title: 'Chart of Accounts' }
+        },
+        {
+          path: 'accounting/transactions',
+          name: 'transactions',
+          component: () => import('../modules/accounting/views/AccountingView.vue'),
+          meta: { title: 'Transactions' }
+        },
+        {
+          path: 'accounting/invoices',
+          name: 'invoices',
+          component: () => import('../modules/accounting/views/AccountingView.vue'),
+          meta: { title: 'Invoices' }
+        },
+        {
+          path: 'accounting/payments',
+          name: 'payments',
+          component: () => import('../modules/accounting/views/AccountingView.vue'),
+          meta: { title: 'Payments' }
         },
         
         // Document Management

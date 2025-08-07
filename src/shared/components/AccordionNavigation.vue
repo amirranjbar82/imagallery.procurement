@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings } from 'lucide-vue-next'
+import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings, UserCheck, Calculator } from 'lucide-vue-next'
 import NavigationItem from './NavigationItem.vue'
 
 interface NavigationItemType {
@@ -95,7 +95,7 @@ defineEmits<{
   'item-click': []
 }>()
 
-const expandedSections = ref(new Set<string>(['tasks', 'procurement'])) // Default expanded sections
+const expandedSections = ref(new Set<string>([])) // All modules start collapsed
 
 const dashboardItem: NavigationItemType = {
   name: 'dashboard',
@@ -209,6 +209,68 @@ const accordionSections = computed((): AccordionSection[] => [
         label: 'RFQs',
         icon: FileText,
         to: '/procurement/rfqs'
+      }
+    ]
+  },
+  {
+    id: 'customers',
+    label: 'Customers',
+    icon: UserCheck,
+    items: [
+      {
+        name: 'customers',
+        label: 'All Customers',
+        icon: UserCheck,
+        to: '/customers'
+      },
+      {
+        name: 'customer-interactions',
+        label: 'Interactions',
+        icon: Users,
+        to: '/customers/interactions'
+      },
+      {
+        name: 'customer-reports',
+        label: 'Customer Reports',
+        icon: FileText,
+        to: '/customers/reports'
+      }
+    ]
+  },
+  {
+    id: 'accounting',
+    label: 'Accounting & Finance',
+    icon: Calculator,
+    items: [
+      {
+        name: 'accounting',
+        label: 'Dashboard',
+        icon: Calculator,
+        to: '/accounting'
+      },
+      {
+        name: 'accounts',
+        label: 'Chart of Accounts',
+        icon: Building2,
+        to: '/accounting/accounts'
+      },
+      {
+        name: 'transactions',
+        label: 'Transactions',
+        icon: FileText,
+        to: '/accounting/transactions'
+      },
+      {
+        name: 'invoices',
+        label: 'Invoices',
+        icon: FileText,
+        to: '/accounting/invoices'
+      },
+      {
+        name: 'payments',
+        label: 'Payments',
+        icon: FileText,
+        to: '/accounting/payments'
       }
     ]
   },

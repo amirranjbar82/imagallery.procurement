@@ -1,9 +1,35 @@
 <template>
   <div class="space-y-6">
-    <div class="text-center">
-      <h2 class="text-2xl font-bold text-slate-900">Create Account</h2>
-      <p class="text-slate-600 mt-2">Join our procurement platform</p>
+    <!-- Success Message -->
+    <div v-if="showSuccessMessage" class="text-center space-y-4">
+      <div class="flex justify-center">
+        <div class="p-3 bg-green-100 rounded-full">
+          <CheckCircle class="h-8 w-8 text-green-600" />
+        </div>
+      </div>
+      <h2 class="text-2xl font-bold text-slate-900">Registration Successful!</h2>
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+        <p class="text-blue-800 font-medium mb-2">Account Created Successfully</p>
+        <p class="text-blue-700">
+          Your registration was successful. To get access, please contact the system administrator.
+        </p>
+      </div>
+      <div class="text-center">
+        <p class="text-sm text-slate-600">
+          Already have access?
+          <RouterLink to="/auth/login" class="font-medium text-slate-900 hover:underline">
+            Sign in
+          </RouterLink>
+        </p>
+      </div>
     </div>
+
+    <!-- Registration Form -->
+    <div v-else>
+      <div class="text-center">
+        <h2 class="text-2xl font-bold text-slate-900">Create Account</h2>
+        <p class="text-slate-600 mt-2">Join our procurement platform</p>
+      </div>
     
     <form @submit.prevent="handleRegister" class="space-y-4">
       <!-- Error Alert -->
@@ -134,16 +160,15 @@
         </RouterLink>
       </p>
     </div>
+    </div> <!-- Close registration form div -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next'
-import { useAuthStore } from '@/stores/auth'
+import { Eye, EyeOff, LoaderCircle, CheckCircle } from 'lucide-vue-next'
+import { useAuthStore } from '@/modules/auth/stores/auth'
 
-const router = useRouter()
 const authStore = useAuthStore()
 
 const name = ref('')
@@ -154,6 +179,8 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const acceptTerms = ref(false)
 
+const showSuccessMessage = ref(false)
+
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
     return
@@ -163,7 +190,8 @@ const handleRegister = async () => {
   
   try {
     await authStore.signUp(email.value, password.value, name.value)
-    router.push('/dashboard')
+    // Show success message instead of redirecting
+    showSuccessMessage.value = true
   } catch (error) {
     // Error is handled in the store
     console.error('Registration error:', error)

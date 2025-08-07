@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { CheckCircle, LoaderCircle, ArrowLeft } from 'lucide-vue-next'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 

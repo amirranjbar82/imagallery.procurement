@@ -2,12 +2,17 @@ export interface Department {
   departmentId: string;
   name: string;
   description?: string;
-  parentDepartmentId?: string;
+  parentDepartmentId?: string | null;
   departmentHead?: string;
   budget?: number;
   currency?: string;
   permissions: DepartmentPermissions;
   isActive: boolean;
+  // Soft delete fields
+  isDeleted?: boolean;
+  deletedAt?: Date;
+  deletedBy?: string;
+  originalParentId?: string | null; // Store original parent for restore
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;

@@ -291,10 +291,10 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useAccessControlStore } from '@/stores/access-control'
-import { useAuthStore } from '@/stores/auth'
-import { useSupplierStore } from '@/stores/supplier'
+import { useAuthStore } from '@/modules/auth/stores/auth'
+import { useSupplierStore } from '@/modules/suppliers/stores/suppliers'
 import { FIELD_CATEGORIES, PERMISSION_PRESETS } from '@/types/access-control'
-import type { UserProfile } from '@/stores/auth'
+import type { UserProfile } from '@/modules/auth/stores/auth'
 import type { PermissionPreset } from '@/types/access-control'
 
 // Icons

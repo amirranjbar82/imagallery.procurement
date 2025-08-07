@@ -106,8 +106,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useSupplierStore } from '@/stores/supplier'
-import type { SupplierDocument } from '@/types/supplier'
+import { useSupplierStore } from '@/modules/procurement/stores/supplier'
+import type { SupplierDocument } from '@/modules/procurement/types/supplier'
 
 // Icons
 import { Upload, FileText, X, AlertCircle } from 'lucide-vue-next'

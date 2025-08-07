@@ -27,6 +27,9 @@ export interface UserProfile {
     language: string
   }
   isActive: boolean
+  createdBy?: 'admin' | 'self-signup' // Track how user was created
+  activatedAt?: Date // Track when user was activated
+  activatedBy?: string // Track who activated the user
   lastLogin?: Date
   createdAt: Date
   updatedAt: Date
@@ -66,6 +69,15 @@ export const useAuthStore = defineStore('auth', {
         // Load user profile from Firestore
         await this.loadUserProfile(userCredential.user.uid)
         
+        // Check if user is active
+        if (!this.userProfile?.isActive) {
+          this.error = 'Your account is not activated yet. Please contact the system administrator for access.'
+          await signOut(auth)
+          this.user = null
+          this.userProfile = null
+          throw new Error('Account not activated')
+        }
+        
         // Update last login
         if (this.userProfile) {
           await this.updateLastLogin()
@@ -103,7 +115,8 @@ export const useAuthStore = defineStore('auth', {
             timezone: 'UTC',
             language: 'en'
           },
-          isActive: true,
+          isActive: false, // New users are inactive by default
+          createdBy: 'self-signup',
           createdAt: new Date(),
           updatedAt: new Date()
         })
@@ -230,45 +243,75 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
     },
 
-    async createAdminUser(email: string, password: string, name: string): Promise<void> {
+    async createUser(email: string, password: string, name: string, role: 'admin' | 'manager' | 'user' | 'viewer' = 'user'): Promise<void> {
       this.isLoading = true
       this.error = null
       
       try {
-        // Only admins can create other admins
+        // Only admins can create users
         if (!this.isAdmin) {
-          throw new Error('Insufficient permissions to create admin users')
+          throw new Error('Insufficient permissions to create users')
         }
 
+        // Store current user to restore session later
+        const currentUser = auth.currentUser
+        const currentUserProfile = this.userProfile
+        
+        if (!currentUser) {
+          throw new Error('No authenticated user found')
+        }
+
+        // Create the new user (this will log out current user)
         const userCredential: UserCredential = await createUserWithEmailAndPassword(auth, email, password)
+        const newUser = userCredential.user
         
         // Update user profile in Firebase Auth
-        await updateProfile(userCredential.user, { displayName: name })
+        await updateProfile(newUser, { displayName: name })
         
-        // Create admin profile in Firestore
-        await this.createUserProfile(userCredential.user.uid, {
+        // Create user profile in Firestore
+        await this.createUserProfile(newUser.uid, {
           email,
           name,
-          role: 'admin',
-          accessSuppliers: 'all' as any,
-          accessProducts: 'all',
-          visibleFields: ['all'], // Admin can see all fields
+          role,
+          accessSuppliers: role === 'admin' ? 'all' as any : [],
+          accessProducts: role === 'admin' ? 'all' : [],
+          visibleFields: role === 'admin' ? ['all'] : [],
           preferences: {
             currency: 'USD',
             dateFormat: 'MM/DD/YYYY',
             timezone: 'UTC',
             language: 'en'
           },
-          isActive: true,
+          isActive: false, // All admin-created users are inactive by default
+          createdBy: 'admin',
           createdAt: new Date(),
           updatedAt: new Date()
         })
+
+        // Sign out the newly created user
+        await signOut(auth)
+        
+        // Restore the original admin session
+        // We need to sign in the admin again
+        // This is a limitation of Firebase client SDK - in production use Firebase Admin SDK
+        
+        // For now, restore the user state manually
+        this.user = currentUser
+        this.userProfile = currentUserProfile
+        
+        // Note: The admin will need to refresh the page or re-login to fully restore session
+        // This is a known limitation when using Firebase client SDK for admin operations
+        
       } catch (error: any) {
         this.error = this.getErrorMessage(error.code)
         throw error
       } finally {
         this.isLoading = false
       }
+    },
+
+    async createAdminUser(email: string, password: string, name: string): Promise<void> {
+      return this.createUser(email, password, name, 'admin')
     },
 
     async updateUserRole(uid: string, newRole: 'admin' | 'manager' | 'user' | 'viewer'): Promise<void> {
@@ -292,6 +335,76 @@ export const useAuthStore = defineStore('auth', {
         this.isLoading = false
       }
     },
+
+    async activateUser(uid: string): Promise<void> {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        // Only admins can activate users
+        if (!this.isAdmin) {
+          throw new Error('Insufficient permissions to activate users')
+        }
+
+        await updateDoc(doc(db, 'users', uid), {
+          isActive: true,
+          activatedAt: new Date(),
+          activatedBy: this.userProfile?.uid,
+          updatedAt: new Date()
+        })
+
+        // Update local users array if it exists
+        const userIndex = this.users.findIndex(u => u.uid === uid)
+        if (userIndex !== -1) {
+          this.users[userIndex] = {
+            ...this.users[userIndex],
+            isActive: true,
+            activatedAt: new Date(),
+            activatedBy: this.userProfile?.uid,
+            updatedAt: new Date()
+          }
+        }
+      } catch (error: any) {
+        this.error = this.getErrorMessage(error.code)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async deactivateUser(uid: string): Promise<void> {
+      this.isLoading = true
+      this.error = null
+      
+      try {
+        // Only admins can deactivate users
+        if (!this.isAdmin) {
+          throw new Error('Insufficient permissions to deactivate users')
+        }
+
+        await updateDoc(doc(db, 'users', uid), {
+          isActive: false,
+          updatedAt: new Date()
+        })
+
+        // Update local users array if it exists
+        const userIndex = this.users.findIndex(u => u.uid === uid)
+        if (userIndex !== -1) {
+          this.users[userIndex] = {
+            ...this.users[userIndex],
+            isActive: false,
+            updatedAt: new Date()
+          }
+        }
+      } catch (error: any) {
+        this.error = this.getErrorMessage(error.code)
+        throw error
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+
 
     async fetchUsers(): Promise<void> {
       this.isLoading = true
