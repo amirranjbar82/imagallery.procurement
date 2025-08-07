@@ -3,9 +3,7 @@ export interface Department {
   name: string;
   description?: string;
   parentDepartmentId?: string | null;
-  departmentHead?: string;
-  budget?: number;
-  currency?: string;
+  departmentHead?: string | null;
   permissions: DepartmentPermissions;
   isActive: boolean;
   // Soft delete fields
