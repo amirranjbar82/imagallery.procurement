@@ -26,10 +26,10 @@ service cloud.firestore {
       // Users can update their own profile (except role)
       allow update: if request.auth != null && request.auth.uid == userId 
                    && !('role' in request.resource.data.diff(resource.data).affectedKeys());
+      // Users can create their own profile during registration
+      allow create: if request.auth != null && request.auth.uid == userId;
       // Only admins can read all users and update roles
       allow read, write: if isAdmin();
-      // Only admins can create new users
-      allow create: if isAdmin();
     }
 
     // Suppliers collection
@@ -115,20 +115,24 @@ service cloud.firestore {
     // Tasks Module Collections
     // Tasks collection
     match /tasks/{taskId} {
-      allow read, write: if isManager();
-      allow read, create: if isUser();
-      // Users can update tasks assigned to them or created by them
-      allow update: if isUser() && 
-        (resource.data.assigneeId == request.auth.uid || 
-         resource.data.createdBy == request.auth.uid);
+      // Temporarily allow full access for authenticated users during development
+      allow read, write: if isUser();
     }
 
     // Projects collection
     match /projects/{projectId} {
-      allow read, write: if isManager();
-      allow read: if isUser();
-      // Users can create projects if they're part of the department
-      allow create: if isUser();
+      // Temporarily allow full access for authenticated users during development
+      allow read, write: if isUser();
+    }
+
+    // Comments collection for tasks and projects
+    match /comments/{commentId} {
+      allow read, write: if isUser();
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      allow read, write: if isUser();
     }
 
     // Sales Module Collections

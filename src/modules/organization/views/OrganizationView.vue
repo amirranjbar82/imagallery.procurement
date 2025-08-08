@@ -1,10 +1,6 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Organization Management</h1>
-        <p class="text-gray-600">Manage departments and organizational structure</p>
-      </div>
       <div class="flex space-x-2">
         <Button @click="showCreateDepartment = true">
           <Plus class="w-4 h-4 mr-2" />
@@ -269,6 +265,9 @@
       <DialogContent class="sm:max-w-md">
         <DialogHeader class="pb-8">
           <DialogTitle>Create New Department</DialogTitle>
+          <DialogDescription>
+            Create a new department in your organizational structure.
+          </DialogDescription>
         </DialogHeader>
         <form @submit.prevent="handleCreateDepartment" class="space-y-6 pt-2">
           <div>
@@ -566,7 +565,7 @@ import OrgChartNode from '../components/OrgChartNode.vue'
 // Components
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'

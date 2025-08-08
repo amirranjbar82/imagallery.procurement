@@ -1,10 +1,6 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Document Management</h1>
-        <p class="text-gray-600">Manage and organize documents across all modules</p>
-      </div>
       <div class="flex space-x-2">
         <Button variant="outline" @click="showCreateTemplate = true">
           <FileText class="w-4 h-4 mr-2" />

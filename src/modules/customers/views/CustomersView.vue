@@ -2,10 +2,44 @@
   <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Customer Management</h1>
-        <p class="text-gray-600 mt-1">Manage your customers and their information</p>
+      <div class="flex items-center space-x-4">
+        <!-- Search -->
+        <div class="relative">
+          <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            v-model="searchQuery"
+            placeholder="Search customers..."
+            class="pl-10 w-64"
+          />
+        </div>
+        
+        <!-- Status Filter -->
+        <Select v-model="statusFilter">
+          <SelectTrigger class="w-40">
+            <SelectValue placeholder="All statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All statuses</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="prospect">Prospect</SelectItem>
+          </SelectContent>
+        </Select>
+        
+        <!-- Type Filter -->
+        <Select v-model="typeFilter">
+          <SelectTrigger class="w-40">
+            <SelectValue placeholder="All types" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All types</SelectItem>
+            <SelectItem value="individual">Individual</SelectItem>
+            <SelectItem value="business">Business</SelectItem>
+            <SelectItem value="government">Government</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+      
       <Button @click="showCreateDialog = true">
         <Plus class="h-4 w-4 mr-2" />
         Add Customer

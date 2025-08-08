@@ -1,10 +1,6 @@
 <template>
   <div class="p-6">
     <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p class="text-gray-600">Generate insights and reports across all business modules</p>
-      </div>
       <div class="flex space-x-2">
         <Button variant="outline" @click="showCreateTemplate = true">
           <FileText class="w-4 h-4 mr-2" />

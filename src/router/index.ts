@@ -143,6 +143,7 @@ const router = createRouter({
           component: () => import('../modules/tasks/views/CalendarView.vue'),
           meta: { title: 'Calendar' }
         },
+
         
         // Inventory Management
         {

@@ -77,6 +77,19 @@ export interface ChecklistItem {
   completedAt?: Date;
 }
 
+export interface CreateTaskData {
+  title: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  departmentId: string;
+  assigneeId?: string;
+  projectId?: string;
+  dueDate?: Date | string;
+  estimatedHours?: number;
+  tags?: string[];
+}
+
 export interface ProjectMilestone {
   id: string;
   title: string;

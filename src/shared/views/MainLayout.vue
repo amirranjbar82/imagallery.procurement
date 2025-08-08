@@ -8,11 +8,9 @@
     ]">
       <div class="flex flex-col h-screen">
         <!-- Logo -->
-        <div class="flex items-center justify-between h-20 px-6 border-b border-gray-200 flex-shrink-0">
-          <div class="flex items-center">
-            <img src="/logo.webp" alt="ImaGallery" class="h-16 w-auto" />
-          </div>
-          <button @click="sidebarOpen = false" class="lg:hidden p-1 rounded-md hover:bg-gray-100">
+        <div class="flex items-center justify-center h-16 px-6 border-b border-gray-200 flex-shrink-0 relative">
+          <img src="/logo.webp" alt="ImaGallery" class="h-15 w-auto" />
+          <button @click="sidebarOpen = false" class="lg:hidden p-1 rounded-md hover:bg-gray-100 absolute right-6">
             <X class="h-5 w-5" />
           </button>
         </div>
@@ -95,7 +93,7 @@
       </div>
 
       <!-- Page content -->
-      <main class="flex-1 p-6">
+      <main class="flex-1 p-3">
         <RouterView :key="$route.fullPath" />
       </main>
     </div>

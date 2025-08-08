@@ -5,9 +5,14 @@
     :class="[
       isSubItem ? 'px-6 py-1.5 ml-6' : 'px-3 py-2',
       isActive
-        ? 'bg-slate-900 text-white'
-        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+        ? 'text-white'
+        : 'text-gray-700 hover:text-white'
     ]"
+    :style="{
+      backgroundColor: isActive ? '#9d8869' : 'transparent'
+    }"
+    @mouseenter="$event.target.style.backgroundColor = '#9d8869'"
+    @mouseleave="$event.target.style.backgroundColor = isActive ? '#9d8869' : 'transparent'"
     @click="$emit('click')"
   >
     <component
@@ -17,7 +22,7 @@
       :class="[
         isActive
           ? 'text-white'
-          : 'text-gray-400 group-hover:text-gray-500'
+          : 'text-gray-400 group-hover:text-white'
       ]"
     />
     <div v-else class="w-2 h-2 bg-gray-400 rounded-full mr-3 flex-shrink-0"></div>
