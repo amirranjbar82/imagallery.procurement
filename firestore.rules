@@ -135,6 +135,11 @@ service cloud.firestore {
       allow read, write: if isUser();
     }
 
+    // Task Change Logs collection
+    match /taskChangeLogs/{changeLogId} {
+      allow read, write: if isUser();
+    }
+
     // Sales Module Collections
     // Customers collection
     match /customers/{customerId} {

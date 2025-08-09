@@ -726,16 +726,26 @@ export const useTasksStore = defineStore('tasks', () => {
         changedBy: {
           id: user.uid,
           name: user.displayName || user.email || 'Unknown User',
-          avatar: user.photoURL || undefined
+          ...(user.photoURL && { avatar: user.photoURL })
         },
         changedAt: new Date(),
         description
       }
 
-      const docRef = await addDoc(collection(db, 'taskChangeLogs'), {
+      // Remove undefined fields before sending to Firebase
+      const firebaseData: any = {
         ...changeLog,
         changedAt: Timestamp.fromDate(changeLog.changedAt)
+      }
+      
+      // Remove undefined fields
+      Object.keys(firebaseData).forEach(key => {
+        if (firebaseData[key] === undefined) {
+          delete firebaseData[key]
+        }
       })
+
+      const docRef = await addDoc(collection(db, 'taskChangeLogs'), firebaseData)
 
       const newChangeLog: TaskChangeLog = {
         id: docRef.id,

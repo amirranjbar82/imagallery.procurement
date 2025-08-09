@@ -159,6 +159,7 @@
           @view-log="handleViewTaskLog"
           @statusChange="handleTaskStatusChange"
           @ratingChange="handleTaskRatingChange"
+          @inline-edit="handleInlineEdit"
           @subtask-toggle="handleSubtaskToggle"
           @add-nested-subtask="handleAddNestedSubtask"
           @edit-subtask="handleEditSubtask"
@@ -538,6 +539,18 @@ const handleTaskStatusChange = async (task: Task, status: TaskStatus) => {
     await tasksStore.updateTaskStatus(task.id, status)
   } catch (error) {
     console.error('Failed to update task status:', error)
+  }
+}
+
+// Inline edit handler for TaskTable
+const handleInlineEdit = async (task: Task, field: string, value: any) => {
+  try {
+    const updateData: Partial<Task> = {
+      [field]: value
+    }
+    await tasksStore.updateTask(task.id, updateData)
+  } catch (error) {
+    console.error(`Failed to update task ${field}:`, error)
   }
 }
 
