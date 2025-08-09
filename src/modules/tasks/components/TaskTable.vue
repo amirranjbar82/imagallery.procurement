@@ -13,92 +13,164 @@
     <!-- Table Header -->
     <div class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-gray-50 border-b">
+        <thead class="bg-gray-100 border-b">
           <tr>
-            <th v-if="isColumnVisible('done')" class="px-1 py-0.5 text-center w-12 border-r border-gray-200">
-              <span class="font-semibold text-gray-900 text-xs">Done</span>
+            <th v-if="isColumnVisible('done')" class="px-2 py-1 text-center w-12 border-r border-gray-300">
+              <span class="font-medium text-gray-700 text-sm">Done</span>
             </th>
-            <th v-if="isColumnVisible('title')" class="px-2 py-0.5 text-left border-r border-gray-200">
+            <th v-if="isColumnVisible('title')" class="px-2 py-1 text-left border-r border-gray-300">
               <Button
                 variant="ghost"
                 size="sm"
                 @click="toggleSort('title')"
-                class="font-semibold text-gray-900 hover:text-gray-700 text-xs p-1"
+                class="font-medium text-gray-700 hover:text-gray-900 text-sm p-1"
               >
                 Task
-                <ArrowUpDown class="ml-1 h-3 w-3" />
+                <ArrowUpDown class="ml-1 h-4 w-4" />
               </Button>
             </th>
-            <th v-if="isColumnVisible('status')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('status')">
+            <th v-if="isColumnVisible('status')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-center space-x-1">
-                <span>Status</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Status</span>
+                <Button variant="ghost" size="sm" @click="toggleSort('status')" class="p-0 h-auto">
+                  <ArrowUpDown class="h-4 w-4 text-gray-700" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" class="p-0 h-auto">
+                      <Filter class="h-4 w-4 text-gray-700" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" class="w-48">
+                    <div class="p-2">
+                      <div class="text-sm font-medium mb-2">Filter by Status</div>
+                      <div v-for="status in getUniqueValues('status')" :key="String(status)" class="flex items-center space-x-2 py-1">
+                        <input 
+                          type="checkbox" 
+                          :id="`status-${status}`"
+                          :checked="filters.status.includes(status)"
+                          @change="(e) => {
+                            const checked = (e.target as HTMLInputElement).checked
+                            if (checked) {
+                              filters.status.push(status)
+                            } else {
+                              const index = filters.status.indexOf(status)
+                              if (index > -1) filters.status.splice(index, 1)
+                            }
+                          }"
+                          class="rounded"
+                        />
+                        <label :for="`status-${status}`" class="text-sm">{{ status }}</label>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <Button variant="ghost" size="sm" @click="clearFilter('status')" class="w-full text-xs">
+                        Clear Filter
+                      </Button>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </th>
-            <th v-if="isColumnVisible('priority')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('priority')">
+            <th v-if="isColumnVisible('priority')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-center space-x-1">
-                <span>Priority</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Priority</span>
+                <Button variant="ghost" size="sm" @click="toggleSort('priority')" class="p-0 h-auto">
+                  <ArrowUpDown class="h-4 w-4 text-gray-700" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" class="p-0 h-auto">
+                      <Filter class="h-4 w-4 text-gray-700" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" class="w-48">
+                    <div class="p-2">
+                      <div class="text-sm font-medium mb-2">Filter by Priority</div>
+                      <div v-for="priority in getUniqueValues('priority')" :key="String(priority)" class="flex items-center space-x-2 py-1">
+                        <input 
+                          type="checkbox" 
+                          :id="`priority-${priority}`"
+                          :checked="filters.priority.includes(priority)"
+                          @change="(e) => {
+                            const checked = (e.target as HTMLInputElement).checked
+                            if (checked) {
+                              filters.priority.push(priority)
+                            } else {
+                              const index = filters.priority.indexOf(priority)
+                              if (index > -1) filters.priority.splice(index, 1)
+                            }
+                          }"
+                          class="rounded"
+                        />
+                        <label :for="`priority-${priority}`" class="text-sm">{{ priority }}</label>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <Button variant="ghost" size="sm" @click="clearFilter('priority')" class="w-full text-xs">
+                        Clear Filter
+                      </Button>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </th>
-            <th v-if="isColumnVisible('assignee')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('createdBy')">
+            <th v-if="isColumnVisible('assignee')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('createdBy')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Creator</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Creator</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('startDate')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('startDate')">
+            <th v-if="isColumnVisible('startDate')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('startDate')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Start Date</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Start date</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('dueDate')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('dueDate')">
+            <th v-if="isColumnVisible('dueDate')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('dueDate')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Due Date</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Due date</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('progress')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('progress')">
+            <th v-if="isColumnVisible('progress')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('progress')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Progress</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Progress</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('assignedTo')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('assignedTo')">
+            <th v-if="isColumnVisible('assignedTo')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('assignedTo')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Assigned To</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Assigned to</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('department')" class="px-2 py-1.5 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider border-b cursor-pointer" @click="toggleSort('departmentId')">
+            <th v-if="isColumnVisible('department')" class="px-2 py-1 text-center border-r border-gray-300 cursor-pointer" @click="toggleSort('departmentId')">
               <div class="flex items-center justify-center space-x-1">
-                <span>Department</span>
-                <ArrowUpDown class="h-3 w-3" />
+                <span class="font-medium text-gray-700 text-sm">Department</span>
+                <ArrowUpDown class="h-4 w-4 text-gray-700" />
               </div>
             </th>
-            <th v-if="isColumnVisible('description')" class="px-2 py-0.5 text-left border-r border-gray-200">
+            <th v-if="isColumnVisible('description')" class="px-2 py-1 text-left border-r border-gray-300">
               <Button
                 variant="ghost"
                 size="sm"
                 @click="toggleSort('description')"
-                class="font-semibold text-gray-900 hover:text-gray-700 text-xs p-1"
+                class="font-medium text-gray-700 hover:text-gray-900 text-sm p-1"
               >
                 Description
-                <ArrowUpDown class="ml-1 h-3 w-3" />
+                <ArrowUpDown class="ml-1 h-4 w-4" />
               </Button>
             </th>
-            <th v-if="isColumnVisible('rating')" class="px-2 py-0.5 text-center border-r border-gray-200">
-              <span class="font-semibold text-gray-900 text-xs">Rating</span>
+            <th v-if="isColumnVisible('rating')" class="px-2 py-1 text-center border-r border-gray-300">
+              <span class="font-medium text-gray-700 text-sm">Rating</span>
             </th>
-            <th v-if="isColumnVisible('actions')" class="px-2 py-0.5 text-center">
-              <span class="font-semibold text-gray-900 text-xs">Actions</span>
+            <th v-if="isColumnVisible('actions')" class="px-2 py-1 text-center">
+              <span class="font-medium text-gray-700 text-sm">Actions</span>
             </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
           <template v-for="task in sortedTasks" :key="task.id">
-            <tr class="hover:bg-gray-50 transition-colors">
+            <tr class="hover:bg-gray-50 transition-colors" :class="{ 'bg-gray-50': sortedTasks.indexOf(task) % 2 === 1, 'bg-white': sortedTasks.indexOf(task) % 2 === 0 }">
             <!-- Done Checkbox -->
             <td v-if="isColumnVisible('done')" class="px-2 py-1 text-center border-r border-gray-200">
               <input
@@ -330,6 +402,14 @@ import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu'
 
 import { 
   ArrowUpDown,
@@ -337,7 +417,11 @@ import {
   Trash2, 
   Plus,
   Star,
-  History
+  History,
+  FileText,
+  Building2,
+  FolderOpen,
+  Filter
 } from 'lucide-vue-next'
 import SubTaskTree from './SubTaskTree.vue'
 import InlineEditCell from './InlineEditCell.vue'
@@ -414,9 +498,72 @@ const toggleSort = (field: string) => {
   }
 }
 
+// Filtering
+const filters = ref<Record<string, any>>({
+  status: [],
+  priority: [],
+  assignee: [],
+  department: [],
+  progress: { min: 0, max: 100 }
+})
+
+const updateFilter = (column: string, value: any) => {
+  filters.value[column] = value
+}
+
+const clearFilter = (column: string) => {
+  if (column === 'progress') {
+    filters.value[column] = { min: 0, max: 100 }
+  } else {
+    filters.value[column] = []
+  }
+}
+
+const getUniqueValues = (column: string) => {
+  const values = new Set()
+  props.tasks.forEach(task => {
+    const value = task[column as keyof Task]
+    if (value !== null && value !== undefined && value !== '') {
+      values.add(value)
+    }
+  })
+  return Array.from(values)
+}
+
 const sortedTasks = computed(() => {
-  const tasks = [...props.tasks]
+  let tasks = [...props.tasks]
   
+  // Apply filters
+  tasks = tasks.filter(task => {
+    // Status filter
+    if (filters.value.status.length > 0 && !filters.value.status.includes(task.status)) {
+      return false
+    }
+    
+    // Priority filter
+    if (filters.value.priority.length > 0 && !filters.value.priority.includes(task.priority)) {
+      return false
+    }
+    
+    // Assignee filter
+    if (filters.value.assignee.length > 0 && !filters.value.assignee.includes(task.createdBy)) {
+      return false
+    }
+    
+    // Department filter
+    if (filters.value.department.length > 0 && !filters.value.department.includes(task.departmentId)) {
+      return false
+    }
+    
+    // Progress filter
+    if (task.progress < filters.value.progress.min || task.progress > filters.value.progress.max) {
+      return false
+    }
+    
+    return true
+  })
+  
+  // Apply sorting
   return tasks.sort((a, b) => {
     let aValue: any = (a as any)[sortField.value]
     let bValue: any = (b as any)[sortField.value]
