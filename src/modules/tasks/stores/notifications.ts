@@ -74,12 +74,15 @@ export const useNotificationsStore = defineStore('notifications', () => {
       )
       
       const querySnapshot = await getDocs(q)
-      notifications.value = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        readAt: doc.data().readAt?.toDate()
-      })) as Notification[]
+      notifications.value = querySnapshot.docs.map(d => {
+        const data = d.data() as any
+        return {
+          id: d.id,
+          ...data,
+          createdAt: normalizeDate(data.createdAt) || new Date(),
+          readAt: normalizeDate(data.readAt)
+        } as Notification
+      })
     } catch (err) {
       error.value = 'Failed to fetch notifications'
       console.error('Error fetching notifications:', err)
@@ -93,7 +96,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       const now = new Date()
       const docRef = await addDoc(collection(db, 'notifications'), {
         ...notification,
-        createdAt: now
+        createdAt: serverTimestamp()
       })
       
       const newNotification: Notification = {

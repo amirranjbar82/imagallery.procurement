@@ -81,6 +81,7 @@
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
                     <SelectItem 
                       v-for="dept in departments" 
                       :key="dept.id" 
@@ -187,7 +188,7 @@
           </Button>
           <Button 
             type="submit" 
-            :disabled="loading || !form.title"
+            :disabled="loading || !form.title || form.departmentId === 'none'"
           >
             <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
             Create Task
@@ -253,9 +254,9 @@ const form = ref({
   description: '',
   status: 'todo',
   priority: 'medium',
-  departmentId: '',
-  assigneeId: '',
-  projectId: '',
+  departmentId: 'none',
+  assigneeId: 'unassigned',
+  projectId: 'no-project',
   startDate: '',
   endDate: '',
   estimatedHours: 0,
@@ -301,7 +302,7 @@ const processedTags = computed(() => {
 
 const handleSubmit = async () => {
   console.log('Form data before validation:', form.value)
-  if (!form.value.title || !form.value.departmentId) {
+  if (!form.value.title || form.value.departmentId === 'none') {
     console.log('Required fields missing')
     return
   }
@@ -337,9 +338,9 @@ const handleSubmit = async () => {
       description: '',
       status: 'todo',
       priority: 'medium',
-      departmentId: '',
-      assigneeId: '',
-      projectId: '',
+      departmentId: 'none',
+      assigneeId: 'unassigned',
+      projectId: 'no-project',
       startDate: '',
       endDate: '',
       estimatedHours: 0,
@@ -364,9 +365,9 @@ const handleCancel = () => {
     description: '',
     status: 'todo',
     priority: 'medium',
-    departmentId: '',
-    assigneeId: '',
-    projectId: '',
+    departmentId: 'none',
+    assigneeId: 'unassigned',
+    projectId: 'no-project',
     startDate: '',
     endDate: '',
     estimatedHours: 0,

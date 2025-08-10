@@ -57,6 +57,21 @@ export const useTasksStore = defineStore('tasks', () => {
     return projects.value.filter(project => project.departmentId === departmentId)
   })
 
+  // Safely normalize Firestore Timestamp | Date | string | number to Date
+  function normalizeDate(input: any): Date | undefined {
+    if (!input) return undefined
+    if (input instanceof Date) return input
+    // Firestore Timestamp has toDate()
+    if (typeof (input as any).toDate === 'function') {
+      try { return (input as any).toDate() } catch { return undefined }
+    }
+    if (typeof input === 'string' || typeof input === 'number') {
+      const d = new Date(input)
+      return isNaN(d.getTime()) ? undefined : d
+    }
+    return undefined
+  }
+
   // Actions
   async function fetchTasks(filters?: { projectId?: string; assigneeId?: string; departmentId?: string }) {
     loading.value = true
@@ -72,15 +87,18 @@ export const useTasksStore = defineStore('tasks', () => {
       }
       
       const querySnapshot = await getDocs(q)
-      tasks.value = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-        dueDate: doc.data().dueDate?.toDate(),
-        startDate: doc.data().startDate?.toDate(),
-        completedAt: doc.data().completedAt?.toDate()
-      })) as Task[]
+      tasks.value = querySnapshot.docs.map(d => {
+        const data = d.data() as any
+        return {
+          id: d.id,
+          ...data,
+          createdAt: normalizeDate(data.createdAt) || new Date(),
+          updatedAt: normalizeDate(data.updatedAt) || new Date(),
+          dueDate: normalizeDate(data.dueDate),
+          startDate: normalizeDate(data.startDate),
+          completedAt: normalizeDate(data.completedAt)
+        } as Task
+      })
     } catch (err) {
       error.value = 'Failed to fetch tasks'
       console.error('Error fetching tasks:', err)
@@ -100,17 +118,20 @@ export const useTasksStore = defineStore('tasks', () => {
       }
       
       const querySnapshot = await getDocs(q)
-      projects.value = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-        timeline: {
-          ...doc.data().timeline,
-          startDate: doc.data().timeline?.startDate?.toDate() || new Date(),
-          endDate: doc.data().timeline?.endDate?.toDate() || new Date()
-        }
-      })) as Project[]
+      projects.value = querySnapshot.docs.map(d => {
+        const data = d.data() as any
+        return {
+          id: d.id,
+          ...data,
+          createdAt: normalizeDate(data.createdAt) || new Date(),
+          updatedAt: normalizeDate(data.updatedAt) || new Date(),
+          timeline: {
+            ...(data.timeline || {}),
+            startDate: normalizeDate(data.timeline?.startDate) || new Date(),
+            endDate: normalizeDate(data.timeline?.endDate) || new Date()
+          }
+        } as Project
+      })
     } catch (err) {
       error.value = 'Failed to fetch projects'
       console.error('Error fetching projects:', err)
@@ -772,11 +793,11 @@ export const useTasksStore = defineStore('tasks', () => {
       const logs: TaskChangeLog[] = []
       
       querySnapshot.forEach((doc) => {
-        const data = doc.data()
+        const data = doc.data() as any
         logs.push({
           id: doc.id,
           ...data,
-          changedAt: data.changedAt.toDate()
+          changedAt: normalizeDate(data.changedAt) || new Date()
         } as TaskChangeLog)
       })
       

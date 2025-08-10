@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { 
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp
+} from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import type { 
   Project, 
@@ -22,6 +25,20 @@ export const useProjectsStore = defineStore('projects', () => {
   const currentProject = ref<Project | null>(null)
   const filters = ref<ProjectFilter>({})
   const sort = ref<ProjectSort>({ field: 'createdAt', direction: 'desc' })
+
+  // Safely normalize Firestore Timestamp | Date | string | number to Date
+  function normalizeDate(input: any): Date | undefined {
+    if (!input) return undefined
+    if (input instanceof Date) return input
+    if (typeof (input as any).toDate === 'function') {
+      try { return (input as any).toDate() } catch { return undefined }
+    }
+    if (typeof input === 'string' || typeof input === 'number') {
+      const d = new Date(input)
+      return isNaN(d.getTime()) ? undefined : d
+    }
+    return undefined
+  }
 
   // Getters
   const filteredProjects = computed(() => {
@@ -198,25 +215,28 @@ export const useProjectsStore = defineStore('projects', () => {
         q = query(q, where('projectManager', '==', filter.projectManager))
       }
       
-      const querySnapshot = await getDocs(q)
-      projects.value = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date(),
-        timeline: {
-          ...doc.data().timeline,
-          startDate: doc.data().timeline?.startDate?.toDate() || new Date(),
-          endDate: doc.data().timeline?.endDate?.toDate() || new Date(),
-          estimatedHours: doc.data().timeline?.estimatedHours || 0,
-          actualHours: doc.data().timeline?.actualHours || 0
-        },
-        milestones: doc.data().milestones?.map((m: any) => ({
-          ...m,
-          dueDate: m.dueDate?.toDate() || new Date(),
-          completedAt: m.completedAt?.toDate()
-        })) || []
-      })) as Project[]
+      const snapshot = await getDocs(q)
+      projects.value = snapshot.docs.map(d => {
+        const data = d.data() as any
+        return {
+          id: d.id,
+          ...data,
+          createdAt: normalizeDate(data.createdAt) || new Date(),
+          updatedAt: normalizeDate(data.updatedAt) || new Date(),
+          timeline: {
+            ...(data.timeline || {}),
+            startDate: normalizeDate(data.timeline?.startDate) || new Date(),
+            endDate: normalizeDate(data.timeline?.endDate) || new Date(),
+            estimatedHours: data.timeline?.estimatedHours || 0,
+            actualHours: data.timeline?.actualHours || 0
+          },
+          milestones: data.milestones?.map((m: any) => ({
+            ...m,
+            dueDate: normalizeDate(m.dueDate) || new Date(),
+            completedAt: normalizeDate(m.completedAt)
+          })) || []
+        } as Project
+      })
     } catch (err) {
       error.value = 'Failed to fetch projects'
       console.error('Error fetching projects:', err)

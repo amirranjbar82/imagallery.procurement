@@ -11,32 +11,38 @@
     </div>
     
     <!-- Table Header -->
-    <div class="overflow-x-auto">
-      <table class="w-full table-fixed">
+    <div class="relative w-full max-w-full overflow-x-auto">
+      <table class="w-full min-w-[1200px] table-fixed task-table">
         <thead class="bg-gray-100 border-b">
           <tr>
-            <th v-if="isColumnVisible('done')" class="px-2 py-1 text-center w-12 border-r border-gray-300">
-              <span class="font-medium text-gray-700 text-sm">Done</span>
-            </th>
+            
             <th v-if="isColumnVisible('title')" class="px-2 py-1 text-left border-r border-gray-300" :style="{ width: taskColumnWidth }">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Task</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('title')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('title')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400 shrink-0" />
+                </Button>
+              </div>
+            </th>
+            <th v-if="isColumnVisible('projectName')" class="px-2 py-1 text-left border-r border-gray-300">
+              <div class="flex items-center justify-between">
+                <span class="font-medium text-gray-700 text-sm">Project Name</span>
+                <Button variant="ghost" size="icon" @click="toggleSort('projectName')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400 shrink-0" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('status')" class="px-2 py-1 text-center border-r border-gray-300" :style="{ width: statusColumnWidth }">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Status</span>
-                <div class="flex items-center space-x-0.5">
-                  <Button variant="ghost" size="sm" @click="toggleSort('status')" class="p-0 h-auto">
-                    <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <div class="flex items-center gap-0">
+                  <Button variant="ghost" size="icon" @click="toggleSort('status')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                    <ArrowUpDown class="h-2 w-2 text-gray-400 shrink-0" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" class="p-0 h-auto">
-                        <Filter class="h-2.5 w-2.5 text-gray-700" />
+                      <Button variant="ghost" size="icon" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                        <Filter class="h-2 w-2 text-gray-400 shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" class="w-48">
@@ -73,14 +79,14 @@
             <th v-if="isColumnVisible('priority')" class="px-2 py-1 text-center border-r border-gray-300" :style="{ width: priorityColumnWidth }">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Priority</span>
-                <div class="flex items-center space-x-0.5">
-                  <Button variant="ghost" size="sm" @click="toggleSort('priority')" class="p-0 h-auto">
-                    <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <div class="flex items-center gap-0">
+                  <Button variant="ghost" size="icon" @click="toggleSort('priority')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                    <ArrowUpDown class="h-2 w-2 text-gray-400 shrink-0" />
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" class="p-0 h-auto">
-                        <Filter class="h-2.5 w-2.5 text-gray-700" />
+                      <Button variant="ghost" size="icon" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                        <Filter class="h-2 w-2 text-gray-400 shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
                   <DropdownMenuContent align="center" class="w-48">
@@ -117,64 +123,64 @@
             <th v-if="isColumnVisible('assignee')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Creator</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('createdBy')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('createdBy')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('startDate')" class="px-2 py-1 text-center border-r border-gray-300" :style="{ width: startDateColumnWidth }">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Start date</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('startDate')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('startDate')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('dueDate')" class="px-2 py-1 text-center border-r border-gray-300" :style="{ width: dueDateColumnWidth }">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Due date</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('dueDate')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('dueDate')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('daysRemaining')" class="px-2 py-1 text-center border-r border-gray-300" :style="{ width: daysRemainingColumnWidth }">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 text-sm">Days Remaining</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('daysRemaining')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <span class="font-medium text-gray-700 text-sm">Remaining</span>
+                <Button variant="ghost" size="icon" @click="toggleSort('daysRemaining')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('progress')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Progress</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('progress')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('progress')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('assignedTo')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 text-sm">Assigned to</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('assignedTo')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <span class="font-medium text-gray-700 text-sm">Assigned</span>
+                <Button variant="ghost" size="icon" @click="toggleSort('assignedTo')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('department')" class="px-2 py-1 text-center border-r border-gray-300">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Department</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('departmentId')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('departmentId')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
             <th v-if="isColumnVisible('description')" class="px-2 py-1 text-left border-r border-gray-300">
               <div class="flex items-center justify-between">
                 <span class="font-medium text-gray-700 text-sm">Description</span>
-                <Button variant="ghost" size="sm" @click="toggleSort('description')" class="p-0 h-auto">
-                  <ArrowUpDown class="h-2.5 w-2.5 text-gray-700" />
+                <Button variant="ghost" size="icon" @click="toggleSort('description')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
+                  <ArrowUpDown class="h-2 w-2 text-gray-400" />
                 </Button>
               </div>
             </th>
@@ -189,15 +195,7 @@
         <tbody class="divide-y divide-gray-200">
           <template v-for="task in sortedTasks" :key="task.id">
             <tr class="hover:bg-gray-50 transition-colors h-12" :class="{ 'bg-gray-50': sortedTasks.indexOf(task) % 2 === 1, 'bg-white': sortedTasks.indexOf(task) % 2 === 0 }">
-            <!-- Done Checkbox -->
-            <td v-if="isColumnVisible('done')" class="px-2 py-1 text-center border-r border-gray-200">
-              <input
-                type="checkbox"
-                :checked="task.status === 'done'"
-                @change="toggleTaskDone(task)"
-                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-              />
-            </td>
+            
             
             <!-- Task Title & Description -->
             <td v-if="isColumnVisible('title')" class="px-2 py-0.5 border-r border-gray-200 whitespace-nowrap overflow-hidden" :style="{ width: taskColumnWidth }">
@@ -208,16 +206,14 @@
                   @update:value="(value) => handleInlineEdit(task, 'title', value)"
                   class="font-medium text-sm truncate"
                 />
-                <div class="flex items-center space-x-1 mt-0.5 overflow-hidden" v-if="task.departmentName || task.projectName">
-                  <Badge variant="outline" class="text-xs whitespace-nowrap" v-if="task.departmentName">
-                    <Building2 class="w-3 h-3 mr-1" />
-                    {{ task.departmentName }}
-                  </Badge>
-                  <Badge variant="outline" class="text-xs whitespace-nowrap" v-if="task.projectName">
-                    <FolderOpen class="w-3 h-3 mr-1" />
-                    {{ task.projectName }}
-                  </Badge>
-                </div>
+                <!-- Department subtitle removed as requested -->
+              </div>
+            </td>
+
+            <!-- Project Name -->
+            <td v-if="isColumnVisible('projectName')" class="px-2 py-0.5 border-r border-gray-200 whitespace-nowrap overflow-hidden">
+              <div class="text-xs text-gray-700 truncate" :title="task.projectName || '-'">
+                <span>{{ task.projectName || '-' }}</span>
               </div>
             </td>
 
@@ -308,22 +304,59 @@
 
             <!-- Start Date -->
             <td v-if="isColumnVisible('startDate')" class="px-2 py-0.5 text-center whitespace-nowrap" :style="{ width: startDateColumnWidth }">
-              <InlineEditCell
-                :value="task.startDate"
-                type="date"
-                placeholder="No start date"
-                @update:value="(value) => handleInlineEdit(task, 'startDate', value)"
-              />
+              <Popover 
+                :open="openStart[task.id] === true"
+                @update:open="(v:boolean)=> (openStart[task.id] = v)"
+              >
+                <PopoverTrigger asChild>
+                  <button type="button" @click="openStart[task.id] = true" class="px-1 py-0.5 rounded hover:bg-gray-50 w-full text-xs text-gray-700">
+                    {{ formatDateDMY(task.startDate) || 'No date set' }}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  side="top"
+                  align="center"
+                  :sideOffset="6"
+                  :avoidCollisions="true"
+                  :collisionPadding="8"
+                  class="w-[340px] max-h-[420px] overflow-auto"
+                >
+                  <DualCalendar
+                    :modelValue="toISODate(task.startDate)"
+                    label="Start date"
+                    :id="`start-date-${task.id}`"
+                    :autoOpen="true"
+                    @update:modelValue="(v: string) => { handleInlineEdit(task, 'startDate', v); openStart[task.id] = false }"
+                  />
+                </PopoverContent>
+              </Popover>
             </td>
 
             <!-- Due Date -->
             <td v-if="isColumnVisible('dueDate')" class="px-2 py-0.5 text-center whitespace-nowrap" :style="{ width: dueDateColumnWidth }">
-              <InlineEditCell
-                :value="task.dueDate"
-                type="date"
-                placeholder="No due date"
-                @update:value="(value) => handleInlineEdit(task, 'dueDate', value)"
-              />
+              <Popover :open="openDue[task.id] === true" @update:open="(v:boolean)=> (openDue[task.id] = v)">
+                <PopoverTrigger asChild>
+                  <button type="button" @click="openDue[task.id] = true" class="px-1 py-0.5 rounded hover:bg-gray-50 w-full text-xs text-gray-700">
+                    {{ formatDateDMY(task.dueDate) || 'No date set' }}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  side="top"
+                  align="center"
+                  :sideOffset="6"
+                  :avoidCollisions="true"
+                  :collisionPadding="8"
+                  class="w-[340px] max-h-[420px] overflow-auto"
+                >
+                  <DualCalendar
+                    :modelValue="toISODate(task.dueDate)"
+                    label="Due date"
+                    :id="`due-date-${task.id}`"
+                    :autoOpen="true"
+                    @update:modelValue="(v: string) => { openDue[task.id] = false; handleInlineEdit(task, 'dueDate', v) }"
+                  />
+                </PopoverContent>
+              </Popover>
             </td>
 
             <!-- Days Remaining -->
@@ -414,14 +447,11 @@
               />
             </td>
 
-            <!-- Description -->
-            <td v-if="isColumnVisible('description')" class="px-2 py-0.5 border-r border-gray-200 whitespace-nowrap overflow-hidden">
-              <InlineEditCell
-                :value="task.description"
-                type="description"
-                placeholder="No description"
-                @update:value="(value) => handleInlineEdit(task, 'description', value)"
-              />
+            <!-- Description (truncated + modal) -->
+            <td v-if="isColumnVisible('description')" class="px-2 py-0.5 border-r border-gray-200">
+              <div class="text-xs text-gray-700 truncate cursor-pointer" :title="task.description || 'No description'" @click="openChatDescription(task)">
+                {{ task.description || 'No description' }}
+              </div>
             </td>
 
             <!-- Rating -->
@@ -439,7 +469,6 @@
               </div>
             </td>
 
-            <!-- Actions -->
             <td class="px-1 py-0.5 whitespace-nowrap">
               <div class="flex items-center justify-center space-x-0.5">
                 <Button
@@ -505,21 +534,53 @@
       <p class="text-gray-500 mb-4">Get started by creating your first task.</p>
     </div>
   </div>
+  <!-- Chat & Description Dialog -->
+  <Dialog :open="chatDescOpen" @update:open="(v) => (chatDescOpen = v)">
+    <DialogContent class="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Chat & Description</DialogTitle>
+      </DialogHeader>
+      <div v-if="selectedTaskForChat" class="space-y-3">
+        <div class="text-xs text-muted-foreground flex items-center gap-2">
+          <span>Created/Updated:</span>
+          <span>{{ formatMeta(selectedTaskForChat) }}</span>
+        </div>
+        <div class="p-3 border rounded bg-muted/30 whitespace-pre-wrap break-words">
+          {{ selectedTaskForChat.description || 'No description' }}
+        </div>
+        <div class="flex items-center gap-2">
+          <Button variant="secondary" @click="emit('edit', selectedTaskForChat)">Edit</Button>
+          <Button variant="default" @click="startReply()">Reply</Button>
+        </div>
+        <div v-if="replying" class="space-y-2">
+          <textarea v-model="replyText" rows="3" class="w-full border rounded p-2 text-sm" placeholder="Write a reply..."></textarea>
+          <div class="flex justify-end gap-2">
+            <Button variant="outline" @click="cancelReply()">Cancel</Button>
+            <Button variant="default" @click="submitReply()">Add entry</Button>
+          </div>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button variant="outline" @click="chatDescOpen = false">Close</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuCheckboxItem
+  
 } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 
 import { 
   ArrowUpDown,
@@ -529,18 +590,54 @@ import {
   Star,
   History,
   FileText,
-  Building2,
-  FolderOpen,
   Filter
 } from 'lucide-vue-next'
 import SubTaskTree from './SubTaskTree.vue'
 import InlineEditCell from './InlineEditCell.vue'
+import DualCalendar from './DualCalendar.vue'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import ColumnChooser, { type ColumnDefinition } from './ColumnChooser.vue'
 import type { Task } from '../types'
 import { TaskStatus, TaskPriority } from '../types'
 import { useAuthStore } from '@/modules/auth/stores/auth'
 
 // ... rest of the code remains the same ...
+
+// Chat & Description dialog state and handlers
+const chatDescOpen = ref(false)
+const selectedTaskForChat = ref<Task | null>(null)
+
+function openChatDescription(task: Task) {
+  selectedTaskForChat.value = task
+  chatDescOpen.value = true
+}
+
+function formatMeta(task: Task): string {
+  const createdAt = task.createdAt ? new Date(task.createdAt) : undefined
+  const updatedAt = task.updatedAt ? new Date(task.updatedAt) : undefined
+  const created = createdAt ? createdAt.toLocaleString() : 'N/A'
+  const updated = updatedAt ? updatedAt.toLocaleString() : 'N/A'
+  const creator = task.createdBy ? getCreatorName(task.createdBy) : 'Unknown'
+  return `by ${creator} • Created: ${created} • Updated: ${updated}`
+}
+
+const replying = ref(false)
+const replyText = ref('')
+
+function startReply() {
+  replying.value = true
+}
+
+function cancelReply() {
+  replying.value = false
+  replyText.value = ''
+}
+
+async function submitReply() {
+  // Placeholder for future integration with comments/logs
+  replying.value = false
+  replyText.value = ''
+}
 interface Props {
   tasks: Task[]
   loading?: boolean
@@ -566,16 +663,20 @@ const emit = defineEmits<Emits>()
 // Initialize stores
 const authStore = useAuthStore()
 
+// Popover open state per task row
+const openStart = reactive<Record<string, boolean>>({})
+const openDue = reactive<Record<string, boolean>>({})
+
 // Column visibility management
 const availableColumns: ColumnDefinition[] = [
-  { key: 'done', label: 'Done', required: true },
   { key: 'title', label: 'Task', required: true },
+  { key: 'projectName', label: 'Project Name' },
   { key: 'status', label: 'Status' },
   { key: 'priority', label: 'Priority' },
   { key: 'assignee', label: 'Assignee' },
   { key: 'startDate', label: 'Start Date' },
   { key: 'dueDate', label: 'Due Date' },
-  { key: 'daysRemaining', label: 'Days Remaining' },
+  { key: 'daysRemaining', label: 'Remaining' },
   { key: 'progress', label: 'Progress' },
   { key: 'assignedTo', label: 'Assigned To' },
   { key: 'department', label: 'Department' },
@@ -585,7 +686,7 @@ const availableColumns: ColumnDefinition[] = [
 ]
 
 const visibleColumns = ref<string[]>([
-  'done', 'title', 'status', 'priority', 'startDate', 'dueDate', 'daysRemaining', 'progress', 'description', 'actions'
+  'title', 'projectName', 'status', 'priority', 'startDate', 'dueDate', 'daysRemaining', 'progress', 'description', 'actions'
 ])
 
 const updateVisibleColumns = (columns: string[]) => {
@@ -889,6 +990,29 @@ const getCreatorName = (createdBy: string) => {
   return user?.name || 'Unknown User'
 }
 
+// Display formatter: returns "DD Mon YYYY" (e.g., 15 Aug 2025)
+function formatDateDMY(value?: string | Date | null): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return ''
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  }).format(d)
+}
+
+// Normalizes various date inputs to ISO 'YYYY-MM-DD' string or ''
+function toISODate(value?: string | Date | null): string {
+  if (!value) return ''
+  const d = new Date(value)
+  if (isNaN(d.getTime())) return ''
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const getCurrentUserName = () => {
   return authStore.userProfile?.name || 'Current User'
 }
@@ -951,5 +1075,11 @@ const handleDeleteSubtask = (subtask: any) => {
 
 .overflow-x-auto::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* Prevent wrapping so columns don't collapse; enable horizontal scroll */
+.task-table th,
+.task-table td {
+  white-space: nowrap;
 }
 </style>

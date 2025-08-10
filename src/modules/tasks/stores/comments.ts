@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where, orderBy } from 'firebase/firestore'
+import { collection, doc, addDoc, updateDoc, deleteDoc, getDocs, query, where, orderBy, serverTimestamp } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 import type { Comment } from '../types'
 
@@ -9,6 +9,20 @@ export const useCommentsStore = defineStore('comments', () => {
   const comments = ref<Comment[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  // Safely normalize Firestore Timestamp | Date | string | number to Date
+  function normalizeDate(input: any): Date | undefined {
+    if (!input) return undefined
+    if (input instanceof Date) return input
+    if (typeof (input as any).toDate === 'function') {
+      try { return (input as any).toDate() } catch { return undefined }
+    }
+    if (typeof input === 'string' || typeof input === 'number') {
+      const d = new Date(input)
+      return isNaN(d.getTime()) ? undefined : d
+    }
+    return undefined
+  }
 
   // Getters
   const getCommentsByTask = computed(() => (taskId: string) => {
@@ -32,12 +46,15 @@ export const useCommentsStore = defineStore('comments', () => {
       )
       
       const querySnapshot = await getDocs(q)
-      const entityComments = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate()
-      })) as Comment[]
+      const entityComments = querySnapshot.docs.map(d => {
+        const data = d.data()
+        return {
+          id: d.id,
+          ...data,
+          createdAt: normalizeDate(data.createdAt) || new Date(),
+          updatedAt: normalizeDate(data.updatedAt)
+        } as Comment
+      })
       
       // Update comments array
       comments.value = comments.value.filter(c => 
