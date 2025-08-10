@@ -26,7 +26,7 @@
             </th>
             <th v-if="isColumnVisible('projectName')" class="px-2 py-1 text-left border-r border-gray-300">
               <div class="flex items-center justify-between">
-                <span class="font-medium text-gray-700 text-sm">Project Name</span>
+                <span class="font-medium text-gray-700 text-sm">Project</span>
                 <Button variant="ghost" size="icon" @click="toggleSort('projectName')" class="p-0 m-0 h-4 w-4 inline-flex items-center justify-center">
                   <ArrowUpDown class="h-2 w-2 text-gray-400 shrink-0" />
                 </Button>
@@ -361,7 +361,12 @@
 
             <!-- Days Remaining -->
             <td v-if="isColumnVisible('daysRemaining')" class="px-2 py-0.5 text-center whitespace-nowrap" :style="{ width: daysRemainingColumnWidth }">
-              <div v-if="task.dueDate" class="flex items-center justify-center">
+              <!-- If task is completed, show empty -->
+              <div v-if="task.status === TaskStatus.DONE">
+                
+              </div>
+              <!-- Otherwise show remaining days or placeholders -->
+              <div v-else-if="task.dueDate" class="flex items-center justify-center">
                 <span 
                   class="text-xs font-medium"
                   :class="getDaysRemainingTextColor(getDaysRemaining(task.dueDate?.toString() || ''))"
@@ -580,7 +585,7 @@ import {
   DropdownMenuSeparator,
   
 } from '@/components/ui/dropdown-menu'
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import { Popover, PopoverTrigger, PopoverContent } from '../../../components/ui/popover'
 
 import { 
   ArrowUpDown,
@@ -670,7 +675,7 @@ const openDue = reactive<Record<string, boolean>>({})
 // Column visibility management
 const availableColumns: ColumnDefinition[] = [
   { key: 'title', label: 'Task', required: true },
-  { key: 'projectName', label: 'Project Name' },
+  { key: 'projectName', label: 'Project' },
   { key: 'status', label: 'Status' },
   { key: 'priority', label: 'Priority' },
   { key: 'assignee', label: 'Assignee' },
@@ -718,10 +723,6 @@ const filters = ref<Record<string, any>>({
   department: [],
   progress: { min: 0, max: 100 }
 })
-
-const updateFilter = (column: string, value: any) => {
-  filters.value[column] = value
-}
 
 const clearFilter = (column: string) => {
   if (column === 'progress') {
@@ -936,18 +937,6 @@ const getInitials = (name: string) => {
     .slice(0, 2)
 }
 
-const isOverdue = (dueDate: Date) => {
-  return new Date() > new Date(dueDate)
-}
-
-const formatDate = (date: Date) => {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: '2-digit'
-  }).format(new Date(date))
-}
-
 const getDaysRemaining = (dueDate: string) => {
   if (!dueDate) return 0
   const today = new Date()
@@ -955,20 +944,6 @@ const getDaysRemaining = (dueDate: string) => {
   const diffTime = due.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
   return diffDays
-}
-
-const getDaysRemainingVariant = (daysRemaining: number) => {
-  if (daysRemaining < 0) {
-    return 'destructive' // Red for overdue
-  } else if (daysRemaining === 0) {
-    return 'critical' // Critical red for due today
-  } else if (daysRemaining <= 3) {
-    return 'warning' // Orange/yellow for urgent (1-3 days)
-  } else if (daysRemaining <= 7) {
-    return 'info' // Blue for coming up (4-7 days)
-  } else {
-    return 'success' // Green for plenty of time (8+ days)
-  }
 }
 
 const getDaysRemainingTextColor = (daysRemaining: number) => {
@@ -1018,15 +993,6 @@ const getCurrentUserName = () => {
 }
 
 // Actions
-const updateTaskStatus = (task: Task, status: TaskStatus) => {
-  emit('statusChange', task, status)
-}
-
-const toggleTaskDone = (task: Task) => {
-  const newStatus = task.status === TaskStatus.DONE ? TaskStatus.TODO : TaskStatus.DONE
-  emit('statusChange', task, newStatus)
-}
-
 const updateTaskRating = (task: Task, rating: number) => {
   emit('ratingChange', task, rating)
 }

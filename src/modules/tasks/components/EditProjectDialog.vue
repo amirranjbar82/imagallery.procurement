@@ -9,9 +9,9 @@
       </DialogHeader>
       
       <form @submit.prevent="handleSubmit" class="space-y-4">
-        <!-- Project Name -->
+        <!-- Project -->
         <div class="space-y-2">
-          <Label for="name">Project Name *</Label>
+          <Label for="name">Project *</Label>
           <Input
             id="name"
             v-model="form.name"

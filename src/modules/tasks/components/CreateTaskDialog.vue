@@ -59,11 +59,10 @@
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="todo">To Do</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="to-do">To Do</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
                     <SelectItem value="review">Review</SelectItem>
                     <SelectItem value="done">Done</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -121,7 +120,7 @@
                   <SelectValue placeholder="Select project" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="no-project">No Project</SelectItem>
+                  <SelectItem value="none">No Project</SelectItem>
                   <SelectItem 
                     v-for="project in projects" 
                     :key="project.id" 
@@ -136,19 +135,33 @@
             <!-- Start Date and End Date -->
             <div class="grid grid-cols-2 gap-4">
               <div class="space-y-2">
-                <DualCalendar
-                  id="startDate"
-                  label="Start Date"
-                  v-model="form.startDate"
-                />
+                <Label for="startDate">Start Date</Label>
+                <Popover>
+                  <PopoverTrigger as-child>
+                    <Button variant="outline" class="w-full justify-start text-left font-normal">
+                      <CalendarIcon class="mr-2 h-4 w-4" />
+                      {{ form.startDate ? formatDisplayDate(form.startDate) : 'Pick a date' }}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent class="w-auto p-0" align="start">
+                    <DualCalendar id="startDate" label="Start Date" v-model="form.startDate" />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div class="space-y-2">
-                <DualCalendar
-                  id="endDate"
-                  label="End Date"
-                  v-model="form.endDate"
-                />
+                <Label for="endDate">End Date</Label>
+                <Popover>
+                  <PopoverTrigger as-child>
+                    <Button variant="outline" class="w-full justify-start text-left font-normal">
+                      <CalendarIcon class="mr-2 h-4 w-4" />
+                      {{ form.endDate ? formatDisplayDate(form.endDate) : 'Pick a date' }}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent class="w-auto p-0" align="start">
+                    <DualCalendar id="endDate" label="End Date" v-model="form.endDate" />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
 
@@ -227,6 +240,8 @@ import { Input } from '../../../components/ui/input'
 import { Textarea } from '../../../components/ui/textarea'
 import { Label } from '../../../components/ui/label'
 import { Loader2 } from 'lucide-vue-next'
+import { Calendar as CalendarIcon } from 'lucide-vue-next'
+import { Popover, PopoverTrigger, PopoverContent } from '../../../components/ui/popover'
 import DualCalendar from './DualCalendar.vue'
 
 interface Props {
@@ -252,11 +267,11 @@ const tagsInput = ref('')
 const form = ref({
   title: '',
   description: '',
-  status: 'todo',
+  status: 'to-do',
   priority: 'medium',
   departmentId: 'none',
   assigneeId: 'unassigned',
-  projectId: 'no-project',
+  projectId: 'none',
   startDate: '',
   endDate: '',
   estimatedHours: 0,
@@ -300,6 +315,12 @@ const processedTags = computed(() => {
     .filter(tag => tag.length > 0)
 })
 
+const formatDisplayDate = (iso: string) => {
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return ''
+  return d.toLocaleDateString()
+}
+
 const handleSubmit = async () => {
   console.log('Form data before validation:', form.value)
   if (!form.value.title || form.value.departmentId === 'none') {
@@ -321,10 +342,12 @@ const handleSubmit = async () => {
       priority: form.value.priority as any,
       departmentId: form.value.departmentId,
       assignedTo: (form.value.assigneeId && form.value.assigneeId !== 'unassigned') ? [form.value.assigneeId] : [],
-      projectId: (form.value.projectId && form.value.projectId !== 'no-project') ? form.value.projectId : undefined,
+      projectId: (form.value.projectId && form.value.projectId !== 'none') ? form.value.projectId : undefined,
       startDate: form.value.startDate ? new Date(form.value.startDate) : undefined,
       endDate: form.value.endDate ? new Date(form.value.endDate) : undefined,
       estimatedHours: form.value.estimatedHours || 0,
+      // ensure done tasks start at 100% progress
+      progress: form.value.status === 'done' ? 100 : 0,
       tags: form.value.tags,
       customFields: {}
     }
@@ -336,11 +359,11 @@ const handleSubmit = async () => {
     form.value = {
       title: '',
       description: '',
-      status: 'todo',
+      status: 'to-do',
       priority: 'medium',
       departmentId: 'none',
       assigneeId: 'unassigned',
-      projectId: 'no-project',
+      projectId: 'none',
       startDate: '',
       endDate: '',
       estimatedHours: 0,
@@ -363,11 +386,11 @@ const handleCancel = () => {
   form.value = {
     title: '',
     description: '',
-    status: 'todo',
+    status: 'to-do',
     priority: 'medium',
     departmentId: 'none',
     assigneeId: 'unassigned',
-    projectId: 'no-project',
+    projectId: 'none',
     startDate: '',
     endDate: '',
     estimatedHours: 0,
