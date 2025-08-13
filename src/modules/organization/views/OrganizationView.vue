@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6">
+  <div class="p-6 overflow-hidden h-[calc(100vh-80px)]">
     <div class="flex justify-between items-center mb-6">
       <div class="flex space-x-2">
         <Button @click="showCreateDepartment = true">
@@ -42,9 +42,9 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4 h-full overflow-hidden">
       <!-- Department Tree / Deleted Departments -->
-      <Card class="lg:col-span-2">
+      <Card class="h-full flex flex-col">
         <CardHeader>
           <div class="flex items-center justify-between">
             <CardTitle>
@@ -65,7 +65,7 @@
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent class="flex-1 overflow-auto">
           <div v-if="loading" class="flex items-center justify-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
@@ -119,16 +119,22 @@
                 </div>
                 
                 <!-- 3. Organizational Chart View -->
-                <div v-else-if="viewMode === 'chart'" class="overflow-x-auto">
-                  <div class="min-w-max p-4">
-                    <div v-for="dept in departmentHierarchy" :key="dept.department.departmentId" class="mb-8">
-                      <OrgChartNode 
-                        :node="dept" 
-                        :level="0" 
-                        @select="selectedDepartment = $event" 
-                        @delete="showDeleteDialog($event)"
-                        :selected="selectedDepartment" 
-                      />
+                <div v-else-if="viewMode === 'chart'" class="overflow-y-auto overflow-x-hidden h-full" ref="chartContainer">
+                  <!-- Scale wrapper to auto-fit more departments in one view -->
+                  <div class="inline-block p-2 origin-top-left" :style="{ transform: `scale(${nodeScale})` }">
+                    <div class="mb-8">
+                      <div class="flex flex-col items-center">
+                        <OrgChartNode 
+                          v-for="dept in departmentHierarchy" 
+                          :key="dept.department.departmentId"
+                          :node="dept" 
+                          :level="0" 
+                          @select="selectedDepartment = $event" 
+                          @delete="showDeleteDialog($event)"
+                          @add="handleAddDepartment($event)"
+                          :selected="selectedDepartment" 
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -188,28 +194,32 @@
       </Card>
 
       <!-- Department Details -->
-      <Card class="lg:col-span-1">
-        <CardHeader>
+      <Card class="lg:col-span-1 w-full min-w-[320px] max-w-lg ml-auto h-full flex flex-col overflow-hidden">
+        <CardHeader class="px-3 py-3">
           <CardTitle class="flex items-center justify-between">
             Department Details
-            <div v-if="selectedDepartment" class="flex space-x-2">
-              <Button variant="outline" size="sm" @click="editDepartment">
-                <Edit class="h-4 w-4 mr-1" />
-                Edit
+            <div v-if="selectedDepartment" class="flex gap-1.5">
+              <Button variant="ghost" size="icon" class="h-5 w-5 border-0 bg-transparent shadow-none rounded-none [&_svg]:h-2 [&_svg]:w-2 text-gray-500 hover:text-gray-800" @click="addSubDepartment" title="Add Sub-Department" aria-label="Add Sub-Department">
+                <Plus />
               </Button>
-              <Button variant="outline" size="sm" @click="manageDepartmentUsers">
-                <Users class="h-4 w-4 mr-1" />
-                Users
+              <Button variant="ghost" size="icon" class="h-5 w-5 border-0 bg-transparent shadow-none rounded-none [&_svg]:h-2 [&_svg]:w-2 text-gray-500 hover:text-gray-800" @click="editDepartment" title="Edit Department" aria-label="Edit Department">
+                <Edit />
+              </Button>
+              <Button variant="ghost" size="icon" class="h-5 w-5 border-0 bg-transparent shadow-none rounded-none [&_svg]:h-2 [&_svg]:w-2 text-gray-500 hover:text-gray-800" @click="manageDepartmentUsers" title="Manage Users" aria-label="Manage Users">
+                <Users />
+              </Button>
+              <Button variant="ghost" size="icon" class="h-5 w-5 border-0 bg-transparent shadow-none rounded-none [&_svg]:h-2 [&_svg]:w-2 text-gray-500 hover:text-gray-800" @click="selectedDepartment && showDeleteDialog(selectedDepartment)" title="Delete Department" aria-label="Delete Department">
+                <Trash />
               </Button>
             </div>
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent class="px-3 pb-4 flex-1 overflow-auto">
           <div v-if="!selectedDepartment" class="text-center text-gray-500 py-8">
             <Building2 class="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p>Select a department to view details</p>
           </div>
-          <div v-else class="space-y-6">
+          <div v-else class="space-y-3">
             <!-- Basic Info -->
             <div>
               <div class="flex items-center justify-between mb-3">
@@ -329,7 +339,7 @@
 
     <!-- Edit Department Dialog -->
     <Dialog v-model:open="isEditDialogOpen">
-      <DialogContent class="sm:max-w-[425px]">
+      <DialogContent class="sm:max-w-[380px]">
         <DialogHeader>
           <DialogTitle>Edit Department</DialogTitle>
           <DialogDescription>
@@ -552,13 +562,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
-import { Plus, Edit, Users, Building2, UserCheck, InfoIcon } from 'lucide-vue-next'
+import { Plus, Edit, Users, Building2, UserCheck, InfoIcon, Trash } from 'lucide-vue-next'
 import { useOrganizationStore } from '../stores/organization'
 import { useAuthStore } from '@/modules/auth/stores/auth'
 import type { Department } from '../types/organization'
-import type { UserProfile } from '@/modules/auth/stores/auth'
 import DepartmentTreeItem from '../components/DepartmentTreeItem.vue'
 import OrgChartNode from '../components/OrgChartNode.vue'
 
@@ -576,7 +585,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 // Reactive state
 const selectedDepartment = ref<Department | null>(null)
 const activeTab = ref<'active' | 'deleted'>('active')
-const viewMode = ref<'classic' | 'compact' | 'chart'>('classic')
+const viewMode = ref<'classic' | 'compact' | 'chart'>('chart')
 const showPermanentDeleteConfirmDialog = ref(false)
 const departmentToDeletePermanently = ref<Department | null>(null)
 
@@ -602,6 +611,62 @@ const organizationStore = useOrganizationStore()
 const authStore = useAuthStore()
 const { departments, departmentHierarchy, deletedDepartments, loading } = storeToRefs(organizationStore)
 const { users } = storeToRefs(authStore)
+
+// Chart container measurement for auto-scaling
+const chartContainer = ref<HTMLDivElement | null>(null)
+const containerWidth = ref(0)
+const containerHeight = ref(0)
+
+function measureContainer() {
+  const el = chartContainer.value
+  containerWidth.value = el?.clientWidth || 0
+  containerHeight.value = el?.clientHeight || 0
+}
+
+onMounted(() => {
+  measureContainer()
+  window.addEventListener('resize', measureContainer)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', measureContainer)
+})
+
+// Compute an adaptive scale for org chart so more departments fit in one view
+// Width: average root node+gap width ~ 260px
+// Height: average level spacing ~ 180px
+function getMaxDepth(nodes: any[]): number {
+  let max = 0
+  for (const n of nodes) {
+    const d = 1 + (n.children && n.children.length ? getMaxDepth(n.children) : 0)
+    if (d > max) max = d
+  }
+  return max
+}
+
+const nodeScale = computed(() => {
+  if (viewMode.value !== 'chart') return 1
+  const roots = departmentHierarchy.value.length || 1
+  const depth = getMaxDepth(departmentHierarchy.value) || 1
+
+  const requiredWidth = roots * 260
+  const requiredHeight = depth * 180
+  const availableWidth = Math.max(0, containerWidth.value - 48)
+  const availableHeight = Math.max(0, containerHeight.value - 48)
+  if (availableWidth <= 0 || availableHeight <= 0) return 1
+
+  const scaleW = availableWidth / requiredWidth
+  const scaleH = availableHeight / requiredHeight
+  const scale = Math.min(scaleW, scaleH)
+  // clamp between 0.4 and 1 for readability but allow more content when needed
+  return Math.max(0.4, Math.min(1, scale))
+})
+
+// Re-measure when data or mode changes
+watch([departmentHierarchy, viewMode], () => {
+  // next tick not strictly needed; quick measure
+  measureContainer()
+})
 
 // Computed property for selectable departments (only active departments)
 const selectableDepartments = computed(() => {
@@ -718,6 +783,32 @@ function editDepartment() {
   }
   
   isEditDialogOpen.value = true
+}
+
+// Prefill create dialog to add a sub-department under the selected department
+function addSubDepartment() {
+  if (!selectedDepartment.value) return
+  newDepartment.value = {
+    name: '',
+    description: '',
+    parentDepartmentId: selectedDepartment.value.departmentId,
+    departmentHead: '',
+    permissions: {
+      canViewOtherDepartments: false,
+      canManageSubDepartments: false,
+      canApproveBudget: false,
+      allowedModules: []
+    },
+    isActive: true,
+    createdBy: ''
+  }
+  showCreateDepartment.value = true
+}
+
+// Handle add event from OrgChartNode (green + icon)
+function handleAddDepartment(dept: Department) {
+  selectedDepartment.value = dept
+  addSubDepartment()
 }
 
 async function updateDepartment() {
