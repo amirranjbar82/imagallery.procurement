@@ -1,7 +1,35 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
+    <!-- Sticky Header Actions -->
+    <div class="sticky top-0 z-10 bg-white/80 backdrop-blur border-b">
+      <div class="px-6 py-4 flex items-start justify-between gap-4">
+        <h2 class="text-base font-semibold text-gray-900">
+          {{ isEdit ? 'Edit Supplier' : 'Add Supplier' }}
+        </h2>
+        <div class="flex items-center gap-2 shrink-0">
+          <Button type="button" variant="outline" @click="$emit('cancel')">Cancel</Button>
+          <Button type="submit" :disabled="loading">
+            <Save class="h-4 w-4 mr-2" />
+            {{ isEdit ? 'Update' : 'Save' }}
+          </Button>
+        </div>
+      </div>
+    </div>
+    <!-- Tabs -->
+    <div class="px-6 pt-4">
+      <Tabs v-model="activeTab" class="w-full">
+        <TabsList class="grid grid-cols-5 w-full">
+          <TabsTrigger value="basic">Basic</TabsTrigger>
+          <TabsTrigger value="company">Company Address</TabsTrigger>
+          <TabsTrigger value="factory">Factory Address</TabsTrigger>
+          <TabsTrigger value="financial">Financial</TabsTrigger>
+          <TabsTrigger value="additional">Additional</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    </div>
+
     <!-- Basic Information -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div v-if="activeTab==='basic'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -19,9 +47,12 @@
           <label class="text-sm font-medium">Supplier Code *</label>
           <Input
             v-model="form.code"
-            placeholder="e.g., SUP001"
+            placeholder="Auto-generated on save"
             :class="{ 'border-destructive': errors.code }"
+            readonly
+            disabled
           />
+          <p class="text-xs text-muted-foreground">Code will be auto-generated starting from 001</p>
           <p v-if="errors.code" class="text-sm text-destructive">{{ errors.code }}</p>
         </div>
       </div>
@@ -70,9 +101,8 @@
             <SelectContent>
               <SelectItem value="email">Email</SelectItem>
               <SelectItem value="whatsapp">WhatsApp</SelectItem>
+              <SelectItem value="wechat">WeChat</SelectItem>
               <SelectItem value="telegram">Telegram</SelectItem>
-              <SelectItem value="slack">Slack</SelectItem>
-              <SelectItem value="teams">Microsoft Teams</SelectItem>
               <SelectItem value="phone">Phone</SelectItem>
             </SelectContent>
           </Select>
@@ -80,126 +110,174 @@
       </div>
     </div>
 
-    <!-- Address Information -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Address Information</h3>
-      
-      <div class="space-y-2">
-        <label class="text-sm font-medium">Street Address *</label>
-        <Input
-          v-model="form.address.street"
-          placeholder="Enter street address"
-          :class="{ 'border-destructive': errors['address.street'] }"
-        />
-        <p v-if="errors['address.street']" class="text-sm text-destructive">{{ errors['address.street'] }}</p>
+    <!-- Company Address -->
+    <div v-if="activeTab==='company'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Company Address</h3>
       </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
         <div class="space-y-2">
-          <label class="text-sm font-medium">City *</label>
+          <label class="text-sm font-medium">Street Address *</label>
           <Input
-            v-model="form.address.city"
-            placeholder="City"
-            :class="{ 'border-destructive': errors['address.city'] }"
+            v-model="form.address.street"
+            placeholder="Enter street address"
+            :class="{ 'border-destructive': errors['address.street'] }"
           />
-          <p v-if="errors['address.city']" class="text-sm text-destructive">{{ errors['address.city'] }}</p>
+          <p v-if="errors['address.street']" class="text-sm text-destructive">{{ errors['address.street'] }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">City *</label>
+            <Input
+              v-model="form.address.city"
+              placeholder="City"
+              :class="{ 'border-destructive': errors['address.city'] }"
+            />
+            <p v-if="errors['address.city']" class="text-sm text-destructive">{{ errors['address.city'] }}</p>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium">State/Province</label>
+            <Input
+              v-model="form.address.state"
+              placeholder="State/Province"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Postal Code *</label>
+            <Input
+              v-model="form.address.postalCode"
+              placeholder="Postal Code"
+              :class="{ 'border-destructive': errors['address.postalCode'] }"
+            />
+            <p v-if="errors['address.postalCode']" class="text-sm text-destructive">{{ errors['address.postalCode'] }}</p>
+          </div>
         </div>
 
         <div class="space-y-2">
-          <label class="text-sm font-medium">State/Province</label>
+          <label class="text-sm font-medium">Country *</label>
           <Input
-            v-model="form.address.state"
-            placeholder="State/Province"
+            v-model="form.address.country"
+            placeholder="Country"
+            :class="{ 'border-destructive': errors['address.country'] }"
           />
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Postal Code *</label>
-          <Input
-            v-model="form.address.postalCode"
-            placeholder="Postal Code"
-            :class="{ 'border-destructive': errors['address.postalCode'] }"
-          />
-          <p v-if="errors['address.postalCode']" class="text-sm text-destructive">{{ errors['address.postalCode'] }}</p>
+          <p v-if="errors['address.country']" class="text-sm text-destructive">{{ errors['address.country'] }}</p>
         </div>
       </div>
+    </div>
 
-      <div class="space-y-2">
-        <label class="text-sm font-medium">Country *</label>
-        <Input
-          v-model="form.address.country"
-          placeholder="Country"
-          :class="{ 'border-destructive': errors['address.country'] }"
-        />
-        <p v-if="errors['address.country']" class="text-sm text-destructive">{{ errors['address.country'] }}</p>
+    <!-- Factory Address -->
+    <div v-if="activeTab==='factory'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Factory Address</h3>
+      </div>
+      <div>
+        <div class="space-y-2">
+          <label class="text-sm font-medium">Street Address</label>
+          <Input
+            v-model="form.factoryAddress!.street"
+            placeholder="Enter factory street address"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">City</label>
+            <Input
+              v-model="form.factoryAddress!.city"
+              placeholder="City"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium">State/Province</label>
+            <Input
+              v-model="form.factoryAddress!.state"
+              placeholder="State/Province"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Postal Code</label>
+            <Input
+              v-model="form.factoryAddress!.postalCode"
+              placeholder="Postal Code"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-2 mt-4">
+          <label class="text-sm font-medium">Country</label>
+          <Input
+            v-model="form.factoryAddress!.country"
+            placeholder="Country"
+          />
+        </div>
       </div>
     </div>
 
     <!-- Financial Information -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Financial Information</h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Payment Terms *</label>
-          <Select v-model="form.paymentTerms">
-            <SelectTrigger>
-              <SelectValue placeholder="Select payment terms" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Net 15">Net 15</SelectItem>
-              <SelectItem value="Net 30">Net 30</SelectItem>
-              <SelectItem value="Net 45">Net 45</SelectItem>
-              <SelectItem value="Net 60">Net 60</SelectItem>
-              <SelectItem value="COD">Cash on Delivery</SelectItem>
-              <SelectItem value="Prepaid">Prepaid</SelectItem>
-            </SelectContent>
-          </Select>
-          <p v-if="errors.paymentTerms" class="text-sm text-destructive">{{ errors.paymentTerms }}</p>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-sm font-medium">Currency *</label>
-          <Select v-model="form.currency">
-            <SelectTrigger>
-              <SelectValue placeholder="Select currency" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="USD">USD - US Dollar</SelectItem>
-              <SelectItem value="EUR">EUR - Euro</SelectItem>
-              <SelectItem value="GBP">GBP - British Pound</SelectItem>
-              <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
-              <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
-              <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
-            </SelectContent>
-          </Select>
-          <p v-if="errors.currency" class="text-sm text-destructive">{{ errors.currency }}</p>
-        </div>
+    <div v-if="activeTab==='financial'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Financial Information</h3>
       </div>
+      <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Payment Terms *</label>
+            <Select v-model="form.paymentTerms">
+              <SelectTrigger>
+                <SelectValue placeholder="Select payment terms" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Net 15">Net 15</SelectItem>
+                <SelectItem value="Net 30">Net 30</SelectItem>
+                <SelectItem value="Net 45">Net 45</SelectItem>
+                <SelectItem value="Net 60">Net 60</SelectItem>
+                <SelectItem value="COD">Cash on Delivery</SelectItem>
+                <SelectItem value="Prepaid">Prepaid</SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="errors.paymentTerms" class="text-sm text-destructive">{{ errors.paymentTerms }}</p>
+          </div>
 
-      <div class="space-y-2">
-        <label class="text-sm font-medium">Tax ID</label>
-        <Input
-          v-model="form.taxId"
-          placeholder="Tax identification number"
-        />
+          <div class="space-y-2">
+            <label class="text-sm font-medium">Currency *</label>
+            <Select v-model="form.currency">
+              <SelectTrigger>
+                <SelectValue placeholder="Select currency" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="USD">USD - US Dollar</SelectItem>
+                <SelectItem value="EUR">EUR - Euro</SelectItem>
+                <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                <SelectItem value="JPY">JPY - Japanese Yen</SelectItem>
+                <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
+              </SelectContent>
+            </Select>
+            <p v-if="errors.currency" class="text-sm text-destructive">{{ errors.currency }}</p>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-sm font-medium">Tax ID</label>
+          <Input
+            v-model="form.taxId"
+            placeholder="Tax identification number"
+          />
+        </div>
       </div>
     </div>
 
     <!-- Bank Details (Optional) -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div v-if="activeTab==='financial'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-semibold text-gray-900">Bank Details</h3>
-        <button
-          type="button"
-          class="text-slate-900 hover:text-slate-700 text-sm font-medium"
-          @click="showBankDetails = !showBankDetails"
-        >
-          {{ showBankDetails ? 'Hide' : 'Show' }} Bank Details
-        </button>
       </div>
-      
-      <div v-if="showBankDetails" class="space-y-4 p-4 border rounded-lg">
+      <div class="space-y-4 p-4 border rounded-lg">
         <div class="space-y-2">
           <label class="text-sm font-medium">Bank Name</label>
           <Input
@@ -247,76 +325,55 @@
     </div>
 
     <!-- Additional Information -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
-      
-      <div class="space-y-2">
-        <label class="text-sm font-medium">Description</label>
-        <textarea
-          v-model="form.description"
-          class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          placeholder="Brief description of the supplier..."
-        />
+    <div v-if="activeTab==='additional'" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-gray-900">Additional Information</h3>
       </div>
+      <div>
+        <div class="space-y-2">
+          <label class="text-sm font-medium">Description</label>
+          <textarea
+            v-model="form.description"
+            class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="Brief description of the supplier..."
+          />
+        </div>
 
-      <div class="space-y-2">
-        <label class="text-sm font-medium">Tags</label>
-        <Input
-          v-model="tagInput"
-          placeholder="Enter tags separated by commas"
-          @keyup.enter="addTags"
-        />
-        <div v-if="form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
-          <Badge
-            v-for="(tag, index) in form.tags"
-            :key="index"
-            variant="secondary"
-            class="cursor-pointer"
-            @click="removeTag(index)"
-          >
-            {{ tag }}
-            <X class="ml-1 h-3 w-3" />
-          </Badge>
+        <div class="space-y-2">
+          <label class="text-sm font-medium">Tags</label>
+          <Input
+            v-model="tagInput"
+            placeholder="Enter tags separated by commas"
+            @keyup.enter="addTags"
+          />
+          <div v-if="form.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
+            <Badge
+              v-for="(tag, index) in form.tags"
+              :key="index"
+              variant="secondary"
+              class="cursor-pointer"
+              @click="removeTag(index)"
+            >
+              {{ tag }}
+              <X class="ml-1 h-3 w-3" />
+            </Badge>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Form Actions -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div class="flex justify-end space-x-4">
-        <button 
-          type="button" 
-          class="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-          @click="$emit('cancel')"
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit" 
-          :disabled="loading"
-          class="px-4 py-2 bg-slate-900 text-white rounded-md hover:bg-slate-800 disabled:opacity-50 flex items-center"
-        >
-          <template v-if="loading">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-            {{ isEdit ? 'Updating...' : 'Creating...' }}
-          </template>
-          <template v-else>
-            {{ isEdit ? 'Update Supplier' : 'Create Supplier' }}
-          </template>
-        </button>
-      </div>
-    </div>
+    
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSupplierStore } from '@/modules/procurement/stores/supplier'
 import type { Supplier, CreateSupplierRequest } from '@/modules/procurement/types/supplier'
 
 // Icons
-import { X } from 'lucide-vue-next'
+import { X, Save } from 'lucide-vue-next'
 
 // UI Components
 import { Button } from '@/components/ui/button'
@@ -329,6 +386,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 // Props
 interface Props {
@@ -345,10 +403,13 @@ defineEmits<{
 
 // Store
 const supplierStore = useSupplierStore()
-const { loading, error } = storeToRefs(supplierStore)
+const { loading } = storeToRefs(supplierStore)
 
 // Computed
 const isEdit = computed(() => !!props.supplier)
+
+// Tabs state
+const activeTab = ref<'basic' | 'company' | 'factory' | 'financial' | 'additional'>('basic')
 
 // Form state
 const form = reactive<CreateSupplierRequest>({
@@ -358,6 +419,13 @@ const form = reactive<CreateSupplierRequest>({
   email: '',
   phone: '',
   address: {
+    street: '',
+    city: '',
+    state: '',
+    country: '',
+    postalCode: ''
+  },
+  factoryAddress: {
     street: '',
     city: '',
     state: '',
@@ -379,17 +447,40 @@ const form = reactive<CreateSupplierRequest>({
   tags: []
 })
 
+// Re-apply fixed size whenever tab changes to avoid any layout jumps
+watch(activeTab, () => {
+  setTimeout(() => {
+    const nodes = Array.from(document.querySelectorAll('[data-radix-dialog-content]')) as HTMLElement[]
+    const el = nodes[nodes.length - 1]
+    if (el) {
+      el.style.setProperty('width', '1000px', 'important')
+      el.style.setProperty('min-width', '1000px', 'important')
+      el.style.setProperty('max-width', 'none', 'important')
+      el.style.setProperty('height', '90vh', 'important')
+      el.style.setProperty('max-height', '90vh', 'important')
+      el.style.setProperty('overflow-y', 'auto', 'important')
+    }
+  }, 0)
+})
+
 const errors = ref<Record<string, string>>({})
-const showBankDetails = ref(false)
 const tagInput = ref('')
 
 // Methods
+function generateNameCode(name: string): string {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .join('')
+    .substring(0, 6) // Limit to 6 characters
+}
+
 function validateForm(): boolean {
   errors.value = {}
 
   // Required fields
   if (!form.name.trim()) errors.value.name = 'Supplier name is required'
-  if (!form.code.trim()) errors.value.code = 'Supplier code is required'
+  // Remove code validation since it's auto-generated
   if (!form.contactPerson.trim()) errors.value.contactPerson = 'Contact person is required'
   if (!form.email.trim()) errors.value.email = 'Email is required'
   if (!form.phone.trim()) errors.value.phone = 'Phone is required'
@@ -426,6 +517,12 @@ function removeTag(index: number) {
 
 async function handleSubmit() {
   if (!validateForm()) {
+    // Switch to the first invalid tab for better feedback
+    const firstKey = Object.keys(errors.value)[0]
+    if (firstKey) {
+      const tab = getTabForField(firstKey)
+      activeTab.value = tab
+    }
     return
   }
 
@@ -443,12 +540,26 @@ async function handleSubmit() {
         emit('success', updatedSupplier)
       }
     } else {
-      const supplierId = await supplierStore.createSupplier(form)
+      // Auto-generate codes before creating
+      const nameCode = generateNameCode(form.name)
+      
+      // Generate sequential supplier code (simple implementation)
+      const existingSuppliers = supplierStore.suppliers
+      const nextNumber = existingSuppliers.length + 1
+      const supplierCode = `SUP${nextNumber.toString().padStart(3, '0')}`
+      
+      const supplierData = {
+        ...form,
+        code: supplierCode,
+        nameCode: nameCode
+      }
+      
+      const supplierId = await supplierStore.createSupplier(supplierData)
       
       if (supplierId) {
         const newSupplier: Supplier = {
           supplierId,
-          ...form,
+          ...supplierData,
           status: 'pending',
           rating: 0,
           totalOrders: 0,
@@ -468,6 +579,22 @@ async function handleSubmit() {
 
 // Initialize form with supplier data if editing
 onMounted(() => {
+  // Fix dialog size so content switch (tabs) doesn't resize the window
+  setTimeout(() => {
+    // Pick the most recently opened dialog content and enforce size with !important
+    const nodes = Array.from(document.querySelectorAll('[data-radix-dialog-content]')) as HTMLElement[]
+    const el = nodes[nodes.length - 1]
+    if (el) {
+      el.style.setProperty('width', '1000px', 'important')
+      el.style.setProperty('min-width', '1000px', 'important')
+      el.style.setProperty('max-width', 'none', 'important')
+      el.style.setProperty('height', '90vh', 'important')
+      el.style.setProperty('max-height', '90vh', 'important')
+      el.style.setProperty('overflow-y', 'auto', 'important')
+      // console.debug('SupplierForm: fixed dialog size applied')
+    }
+  }, 100)
+
   if (props.supplier) {
     Object.assign(form, {
       name: props.supplier.name,
@@ -491,9 +618,16 @@ onMounted(() => {
       tags: [...props.supplier.tags]
     })
 
-    if (props.supplier.bankDetails?.bankName) {
-      showBankDetails.value = true
-    }
   }
 })
+
+function getTabForField(field: string): 'basic' | 'company' | 'factory' | 'financial' | 'additional' {
+  // Map validation keys to tabs
+  if (field.startsWith('address.')) return 'company'
+  if (field.startsWith('factoryAddress.')) return 'factory'
+  if (field === 'paymentTerms' || field === 'currency' || field === 'taxId') return 'financial'
+  if (field.startsWith('bankDetails.')) return 'financial'
+  // Default to basic
+  return 'basic'
+}
 </script>

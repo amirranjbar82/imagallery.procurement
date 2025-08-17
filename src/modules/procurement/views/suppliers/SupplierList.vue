@@ -1,71 +1,20 @@
 <template>
   <div class="space-y-6">
-    <!-- Header with actions -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Suppliers</h1>
-          <p class="text-gray-600 mt-1">Manage your supplier relationships and vendor information</p>
-        </div>
-        <button 
-          @click="$emit('create')"
-          class="bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-800 flex items-center"
+    <ProcurementHeader>
+      <template #search>
+        <Input
+          v-model="searchQuery"
+          placeholder="Search suppliers by name, code, or contact..."
+          class="h-8 max-w-sm"
         >
-          <Plus class="mr-2 h-4 w-4" />
-          Add Supplier
-        </button>
-      </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center">
-          <Building2 class="h-5 w-5 text-blue-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Total</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ stats.totalSuppliers }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center">
-          <CheckCircle class="h-5 w-5 text-green-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Active</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ stats.activeSuppliers }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center">
-          <Clock class="h-5 w-5 text-yellow-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Pending</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">{{ stats.pendingSuppliers }}</div>
-      </div>
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center">
-          <DollarSign class="h-5 w-5 text-purple-600" />
-          <span class="ml-2 text-sm font-medium text-gray-600">Total Spend</span>
-        </div>
-        <div class="text-2xl font-bold text-gray-900 mt-2">${{ formatCurrency(stats.totalSpend) }}</div>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <div class="flex items-center space-x-4">
-        <div class="flex-1">
-          <Input
-            v-model="searchQuery"
-            placeholder="Search suppliers by name, code, or contact..."
-            class="max-w-sm"
-          >
-            <template #prefix>
-              <Search class="h-4 w-4 text-muted-foreground" />
-            </template>
-          </Input>
-        </div>
-        
+          <template #prefix>
+            <Search class="h-4 w-4 text-muted-foreground" />
+          </template>
+        </Input>
+      </template>
+      <template #filters>
         <Select v-model="statusFilter">
-          <SelectTrigger class="w-[180px]">
+          <SelectTrigger class="w-44 h-8">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -76,13 +25,59 @@
             <SelectItem value="suspended">Suspended</SelectItem>
           </SelectContent>
         </Select>
-
-        <Button variant="outline" @click="clearFilters">
+        <Button variant="outline" size="sm" @click="clearFilters">
           <X class="mr-2 h-4 w-4" />
           Clear
         </Button>
-      </div>
-    </div>
+      </template>
+      <template #actions>
+        <div class="flex items-center gap-2">
+          <div class="text-sm text-muted-foreground hidden md:block">{{ filteredSuppliers.length }} results</div>
+          <Button @click="$emit('quickAdd')" variant="outline" size="sm">
+            <Camera class="mr-2 h-4 w-4" />
+            Quick Add
+          </Button>
+          <Button @click="$emit('create')" size="sm">
+            <Plus class="mr-2 h-4 w-4" />
+            Add Supplier
+          </Button>
+        </div>
+      </template>
+      <template #stats>
+        <Card class="py-1.5">
+          <CardContent class="p-1.5">
+            <div>
+              <div class="text-xl font-bold">{{ stats.totalSuppliers }}</div>
+              <div class="text-xs text-muted-foreground">Total</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card class="py-1.5">
+          <CardContent class="p-1.5">
+            <div>
+              <div class="text-xl font-bold">{{ stats.activeSuppliers }}</div>
+              <div class="text-xs text-muted-foreground">Active</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card class="py-1.5">
+          <CardContent class="p-1.5">
+            <div>
+              <div class="text-xl font-bold">{{ stats.pendingSuppliers }}</div>
+              <div class="text-xs text-muted-foreground">Pending</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card class="py-1.5">
+          <CardContent class="p-1.5">
+            <div>
+              <div class="text-xl font-bold">${{ formatCurrency(stats.totalSpend) }}</div>
+              <div class="text-xs text-muted-foreground">Total Spend</div>
+            </div>
+          </CardContent>
+        </Card>
+      </template>
+    </ProcurementHeader>
 
     <!-- Loading State -->
     <div v-if="loading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-12">
@@ -111,21 +106,87 @@
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Supplier</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Payment Terms</TableHead>
-            <TableHead>Total Orders</TableHead>
-            <TableHead>Total Spend</TableHead>
-            <TableHead>Rating</TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('name')">
+              <div class="flex items-center gap-2">
+                Company Name
+                <ChevronUp v-if="sortField === 'name' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'name' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('contactPerson')">
+              <div class="flex items-center gap-2">
+                Contact
+                <ChevronUp v-if="sortField === 'contactPerson' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'contactPerson' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('status')">
+              <div class="flex items-center gap-2">
+                Status
+                <ChevronUp v-if="sortField === 'status' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'status' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('paymentTerms')">
+              <div class="flex items-center gap-2">
+                Payment Terms
+                <ChevronUp v-if="sortField === 'paymentTerms' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'paymentTerms' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('totalOrders')">
+              <div class="flex items-center gap-2">
+                Total Orders
+                <ChevronUp v-if="sortField === 'totalOrders' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'totalOrders' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('totalSpend')">
+              <div class="flex items-center gap-2">
+                Total Spend
+                <ChevronUp v-if="sortField === 'totalSpend' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'totalSpend' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead class="cursor-pointer hover:bg-muted/50" @click="sortBy('rating')">
+              <div class="flex items-center gap-2">
+                Rating
+                <ChevronUp v-if="sortField === 'rating' && sortOrder === 'asc'" class="h-4 w-4" />
+                <ChevronDown v-else-if="sortField === 'rating' && sortOrder === 'desc'" class="h-4 w-4" />
+                <ChevronsUpDown v-else class="h-4 w-4 opacity-50" />
+              </div>
+            </TableHead>
+            <TableHead v-for="column in customColumns" :key="column.id" class="cursor-pointer hover:bg-muted/50">
+              <div class="flex items-center gap-2">
+                {{ column.name }}
+                <Button variant="ghost" size="sm" class="h-4 w-4 p-0" @click.stop="removeCustomColumn(column.id)">
+                  <X class="h-3 w-3" />
+                </Button>
+              </div>
+            </TableHead>
+            <TableHead>
+              <Button variant="ghost" size="sm" @click="showAddColumnDialog = true">
+                <Plus class="h-4 w-4" />
+              </Button>
+            </TableHead>
             <TableHead class="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           <TableRow
-            v-for="supplier in filteredSuppliers"
+            v-for="(supplier, index) in sortedSuppliers"
             :key="supplier.supplierId"
-            class="cursor-pointer hover:bg-muted/50"
+            :class="[
+              'cursor-pointer hover:bg-muted/50',
+              index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50',
+              index === sortedSuppliers.length - 1 ? 'bg-gray-100 border-b-2 border-gray-300' : ''
+            ]"
             @click="$emit('view', supplier)"
           >
             <TableCell>
@@ -188,6 +249,11 @@
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>
+            <TableCell v-for="column in customColumns" :key="column.id">
+              <!-- Custom column data placeholder -->
+              <span class="text-muted-foreground text-sm">-</span>
+            </TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableBody>
       </Table>
@@ -208,6 +274,31 @@
         </Button>
       </div>
     </div>
+
+    <!-- Add Column Dialog -->
+    <div v-if="showAddColumnDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg p-6 w-96">
+        <h3 class="text-lg font-semibold mb-4">Add Custom Column</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm font-medium">Column Name</label>
+            <Input
+              v-model="newColumnName"
+              placeholder="Enter column name"
+              @keyup.enter="addCustomColumn"
+            />
+          </div>
+          <div class="flex justify-end gap-2">
+            <Button variant="outline" @click="showAddColumnDialog = false">
+              Cancel
+            </Button>
+            <Button @click="addCustomColumn">
+              Add Column
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -219,13 +310,15 @@ import type { Supplier, SupplierStatus } from '@/modules/procurement/types/suppl
 
 // Icons
 import { 
-  Plus, Search, X, Building2, CheckCircle, Clock, DollarSign,
-  AlertCircle, Star, MoreHorizontal, Eye, Edit, Power
+  Plus, Search, X, Building2,
+  AlertCircle, Star, MoreHorizontal, Eye, Edit, Power, Camera,
+  ChevronUp, ChevronDown, ChevronsUpDown
 } from 'lucide-vue-next'
 
 // UI Components
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Card, CardContent } from '@/components/ui/card'
 import { 
   Select,
   SelectContent,
@@ -249,10 +342,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import ProcurementHeader from '@/modules/procurement/components/ProcurementHeader.vue'
 
 // Emits
 defineEmits<{
   create: []
+  quickAdd: []
   view: [supplier: Supplier]
   edit: [supplier: Supplier]
 }>()
@@ -264,6 +359,20 @@ const { suppliers, loading, error, stats } = storeToRefs(supplierStore)
 // Local state
 const searchQuery = ref('')
 const statusFilter = ref<string>('all')
+
+// Sorting state
+const sortField = ref<string>('name')
+const sortOrder = ref<'asc' | 'desc'>('asc')
+
+// Custom columns
+interface CustomColumn {
+  id: string
+  name: string
+}
+
+const customColumns = ref<CustomColumn[]>([])
+const showAddColumnDialog = ref(false)
+const newColumnName = ref('')
 
 // Computed
 const filteredSuppliers = computed(() => {
@@ -288,7 +397,64 @@ const filteredSuppliers = computed(() => {
   return filtered
 })
 
+const sortedSuppliers = computed(() => {
+  const sorted = [...filteredSuppliers.value]
+  
+  sorted.sort((a, b) => {
+    let aValue = a[sortField.value as keyof Supplier]
+    let bValue = b[sortField.value as keyof Supplier]
+    
+    // Handle undefined values
+    if (aValue === undefined) aValue = ''
+    if (bValue === undefined) bValue = ''
+    
+    // Handle different data types
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      aValue = aValue.toLowerCase()
+      bValue = bValue.toLowerCase()
+    }
+    
+    if (aValue < bValue) {
+      return sortOrder.value === 'asc' ? -1 : 1
+    }
+    if (aValue > bValue) {
+      return sortOrder.value === 'asc' ? 1 : -1
+    }
+    return 0
+  })
+  
+  return sorted
+})
+
 // Methods
+function sortBy(field: string) {
+  if (sortField.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortField.value = field
+    sortOrder.value = 'asc'
+  }
+}
+
+function addCustomColumn() {
+  if (newColumnName.value.trim()) {
+    const newColumn: CustomColumn = {
+      id: Date.now().toString(),
+      name: newColumnName.value.trim()
+    }
+    customColumns.value.push(newColumn)
+    newColumnName.value = ''
+    showAddColumnDialog.value = false
+  }
+}
+
+function removeCustomColumn(columnId: string) {
+  const index = customColumns.value.findIndex(col => col.id === columnId)
+  if (index > -1) {
+    customColumns.value.splice(index, 1)
+  }
+}
+
 function getStatusVariant(status: SupplierStatus) {
   switch (status) {
     case 'active': return 'default'

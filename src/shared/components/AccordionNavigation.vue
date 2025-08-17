@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings, UserCheck, Calculator } from 'lucide-vue-next'
+import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings, UserCheck, Calculator, CreditCard, FolderTree } from 'lucide-vue-next'
 import NavigationItem from './NavigationItem.vue'
 
 interface NavigationItemType {
@@ -197,6 +197,36 @@ const accordionSections = computed((): AccordionSection[] => [
         label: 'Suppliers',
         icon: Building2,
         to: '/suppliers'
+      },
+      {
+        name: 'categories',
+        label: 'Product Categories',
+        icon: FolderTree,
+        to: '/categories'
+      },
+      {
+        name: 'orders',
+        label: 'Orders',
+        icon: ShoppingCart,
+        to: '/orders'
+      },
+      {
+        name: 'procurement-invoices',
+        label: 'Invoices',
+        icon: FileText,
+        to: '/invoices'
+      },
+      {
+        name: 'procurement-shipments',
+        label: 'Shipments',
+        icon: Package,
+        to: '/shipments'
+      },
+      {
+        name: 'procurement-payments',
+        label: 'Payments',
+        icon: CreditCard,
+        to: '/payments'
       },
       {
         name: 'purchase-orders',

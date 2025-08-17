@@ -10,8 +10,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useSupplierStore } from '@/stores/supplier'
-import type { Supplier } from '@/types/supplier'
+import { useSupplierStore } from '@/modules/procurement/stores/supplier'
+import type { Supplier } from '@/modules/procurement/types/supplier'
 import SupplierDetail from './SupplierDetail.vue'
 
 const route = useRoute()

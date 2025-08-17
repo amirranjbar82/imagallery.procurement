@@ -307,12 +307,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useTasksStore } from '../stores/tasks'
+import { useProjectsStore } from '../stores/projects'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 import { 
   Plus, 
-  Search, 
-  Filter, 
-  Calendar, 
-  Users, 
   Clock, 
   AlertCircle, 
   FolderOpen,
@@ -322,10 +322,8 @@ import {
   Archive,
   RotateCcw 
 } from 'lucide-vue-next'
-import { useTasksStore } from '../stores/tasks'
-import { useProjectsStore } from '../stores/projects'
 import type { Task, Project } from '../types'
-import { TaskStatus, ProjectStatus } from '../types'
+import { TaskStatus } from '../types'
 
 // Components
 import { Button } from '@/components/ui/button'
@@ -340,7 +338,7 @@ import EditTaskDialog from '../components/EditTaskDialog.vue'
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog.vue'
 import EditProjectDialog from '../components/EditProjectDialog.vue'
 import KanbanBoard from '../components/KanbanBoard.vue'
-import NotificationCenter from '../components/NotificationCenter.vue'
+// import NotificationCenter from '../components/NotificationCenter.vue'
 import TaskChangeLogDialog from '../components/TaskChangeLogDialog.vue'
 
 const tasksStore = useTasksStore()
@@ -598,10 +596,33 @@ const handleDeleteSubtask = async (subtask: any) => {
 
 // Lifecycle
 onMounted(async () => {
-  await Promise.all([
-    tasksStore.fetchTasks(),
-    projectsStore.fetchProjects(),
-    tasksStore.fetchArchivedTasks()
-  ])
+  const fetchAll = async () => {
+    try {
+      await Promise.all([
+        tasksStore.fetchTasks(),
+        projectsStore.fetchProjects(),
+        tasksStore.fetchArchivedTasks()
+      ])
+    } catch (err) {
+      console.error('TasksView init fetch error:', err)
+    }
+  }
+
+  // If already authenticated, fetch immediately
+  if (auth.currentUser) {
+    await fetchAll()
+    return
+  }
+
+  // Otherwise, wait for auth state to be ready, then fetch once
+  const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    try {
+      if (user) {
+        await fetchAll()
+      }
+    } finally {
+      unsubscribe()
+    }
+  })
 })
 </script>

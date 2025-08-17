@@ -181,8 +181,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useSupplierStore } from '@/stores/supplier'
-import type { SupplierDocument } from '@/types/supplier'
+import { useSupplierStore } from '@/modules/procurement/stores/supplier'
+import type { SupplierDocument } from '@/modules/procurement/types/supplier'
 
 // Preview Components
 import VuePdfEmbed from 'vue-pdf-embed'
@@ -190,7 +190,7 @@ import VueOfficeDocx from '@vue-office/docx'
 import VueOfficeExcel from '@vue-office/excel'
 
 // Icons
-import { FileText, Download, Edit, ExternalLink } from 'lucide-vue-next'
+import { FileText, ExternalLink, Presentation } from 'lucide-vue-next'
 
 // Props
 interface Props {

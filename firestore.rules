@@ -52,11 +52,21 @@ service cloud.firestore {
       allow read: if isUser();
     }
 
-    // Orders collection
-    match /orders/{orderId} {
+    // Product Categories collection (Procurement)
+    match /productCategories/{categoryId} {
+      // Managers/Admins can read/write categories
       allow read, write: if isManager();
+      // All authenticated users can read categories
+      allow read: if isUser();
+    }
+
+    // Purchase Orders collection (Procurement)
+    match /purchaseOrders/{orderId} {
+      // Managers/Admins full access
+      allow read, write: if isManager();
+      // Authenticated users can read and create orders
       allow read, create: if isUser();
-      // Users can only update their own orders
+      // Users can only update orders they created
       allow update: if isUser() && resource.data.createdBy == request.auth.uid;
     }
 
@@ -64,6 +74,36 @@ service cloud.firestore {
     match /documents/{documentId} {
       allow read, write: if isManager();
       allow read: if isUser();
+    }
+
+    // Invoices collection (Procurement)
+    match /invoices/{invoiceId} {
+      // Managers/Admins full access
+      allow read, write: if isManager();
+      // Authenticated users can read and create invoices
+      allow read, create: if isUser();
+      // Users can only update invoices they created
+      allow update: if isUser() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Payments collection (Procurement)
+    match /payments/{paymentId} {
+      // Managers/Admins full access
+      allow read, write: if isManager();
+      // Authenticated users can read and create payments
+      allow read, create: if isUser();
+      // Users can only update payments they created
+      allow update: if isUser() && resource.data.createdBy == request.auth.uid;
+    }
+
+    // Shipments collection (Procurement)
+    match /shipments/{shipmentId} {
+      // Managers/Admins full access
+      allow read, write: if isManager();
+      // Authenticated users can read and create shipments
+      allow read, create: if isUser();
+      // Users can only update shipments they created
+      allow update: if isUser() && resource.data.createdBy == request.auth.uid;
     }
 
     // Reports collection (admin only for now)

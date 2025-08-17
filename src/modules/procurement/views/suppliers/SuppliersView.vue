@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <!-- List View -->
-    <SupplierList v-if="currentView === 'list'" @create="openCreateDialog" @view="viewSupplier" @edit="editSupplier" />
+    <SupplierList v-if="currentView === 'list'" @create="openCreateDialog" @quickAdd="openQuickAddDialog" @view="viewSupplier" @edit="editSupplier" />
 
     <!-- Detail View -->
     <SupplierDetail v-else-if="currentView === 'detail' && selectedSupplierId" :supplier-id="selectedSupplierId"
@@ -37,6 +37,13 @@
         </div>
       </DialogContent>
     </Dialog>
+
+    <!-- Quick Add Supplier Dialog -->
+    <QuickAddSupplierDialog
+      :open="showQuickAddDialog"
+      @update:open="showQuickAddDialog = $event"
+      @success="handleQuickAddSuccess"
+    />
   </div>
 </template>
 
@@ -49,6 +56,7 @@ import type { Supplier } from '@/modules/procurement/types/supplier'
 import SupplierList from '@/modules/procurement/views/suppliers/SupplierList.vue'
 import SupplierDetail from '@/modules/procurement/views/suppliers/SupplierDetail.vue'
 import SupplierForm from '@/modules/procurement/views/suppliers/SupplierForm.vue'
+import QuickAddSupplierDialog from '@/modules/procurement/views/suppliers/QuickAddSupplierDialog.vue'
 
 // UI Components
 import {
@@ -68,6 +76,7 @@ const selectedSupplierId = ref<string>('')
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
 const supplierToEdit = ref<Supplier | null>(null)
+const showQuickAddDialog = ref(false)
 
 // Methods
 function openCreateDialog() {
@@ -82,6 +91,19 @@ function handleCreateSuccess(supplier: Supplier) {
   closeCreateDialog()
   // Optionally navigate to the new supplier detail
   // viewSupplier(supplier)
+}
+
+function openQuickAddDialog() {
+  showQuickAddDialog.value = true
+}
+
+function handleQuickAddSuccess(supplierId: string) {
+  showQuickAddDialog.value = false
+  // Navigate to detail after quick add
+  selectedSupplierId.value = supplierId
+  const created = supplierStore.suppliers.find(s => s.supplierId === supplierId)
+  if (created) supplierStore.setSelectedSupplier(created)
+  currentView.value = 'detail'
 }
 
 function editSupplier(supplier: Supplier) {

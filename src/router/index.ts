@@ -100,6 +100,12 @@ const router = createRouter({
           meta: { title: 'Supplier Documents' }
         },
         {
+          path: 'categories',
+          name: 'categories',
+          component: () => import('../modules/procurement/views/CategoriesView.vue'),
+          meta: { title: 'Product Categories' }
+        },
+        {
           path: 'products',
           name: 'products',
           component: () => import('../modules/procurement/views/products/ProductsView.vue'),
@@ -110,6 +116,24 @@ const router = createRouter({
           name: 'orders',
           component: () => import('../modules/procurement/views/orders/OrdersView.vue'),
           meta: { title: 'Orders' }
+        },
+        {
+          path: 'invoices',
+          name: 'procurement-invoices',
+          component: () => import('../modules/procurement/views/invoices/InvoicesView.vue'),
+          meta: { title: 'Invoices' }
+        },
+        {
+          path: 'payments',
+          name: 'procurement-payments',
+          component: () => import('../modules/procurement/views/payments/PaymentsView.vue'),
+          meta: { title: 'Payments' }
+        },
+        {
+          path: 'shipments',
+          name: 'procurement-shipments',
+          component: () => import('../modules/procurement/views/shipments/ShipmentsView.vue'),
+          meta: { title: 'Shipments' }
         },
         {
           path: 'procurement/purchase-orders',

@@ -101,114 +101,230 @@
         </div>
       </div>
 
-      <!-- Main Content Grid -->
-      <div class="grid gap-4 lg:grid-cols-2">
-        <!-- Contact Information -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h2>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <User class="h-4 w-4 text-gray-600 mr-3" />
-              <div>
-                <div class="font-medium">{{ supplier.contactPerson }}</div>
-                <div class="text-sm text-gray-600">Primary Contact</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center">
-              <Mail class="h-4 w-4 text-gray-600 mr-3" />
-              <div>
-                <a 
-                  :href="`mailto:${supplier.email}`"
-                  class="font-medium text-blue-600 hover:text-blue-800"
-                >
-                  {{ supplier.email }}
-                </a>
-                <div class="text-sm text-gray-600">Email</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center">
-              <Phone class="h-4 w-4 text-gray-600 mr-3" />
-              <div>
-                <a 
-                  :href="`tel:${supplier.phone}`"
-                  class="font-medium text-blue-600 hover:text-blue-800"
-                >
-                  {{ supplier.phone }}
-                </a>
-                <div class="text-sm text-gray-600">Phone</div>
-              </div>
-            </div>
-            
-            <div class="flex items-center">
-              <MessageSquare class="h-4 w-4 text-gray-600 mr-3" />
-              <div>
-                <div class="font-medium capitalize">{{ supplier.communicationPlatform }}</div>
-                <div class="text-sm text-gray-600">Preferred Platform</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Tabbed Content -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <Tabs :default-value="activeTab" @update:value="activeTab = $event" class="w-full">
+          <TabsList class="grid w-full grid-cols-7 rounded-none border-b">
+            <TabsTrigger value="overview" class="rounded-none">Overview</TabsTrigger>
+            <TabsTrigger value="documents" class="rounded-none">Documents</TabsTrigger>
+            <TabsTrigger value="communication" class="rounded-none">Communication</TabsTrigger>
+            <TabsTrigger value="custom-fields" class="rounded-none">Custom Fields</TabsTrigger>
+            <TabsTrigger value="excel-import" class="rounded-none">Excel Import</TabsTrigger>
+            <TabsTrigger value="box-labels" class="rounded-none">Box Labels</TabsTrigger>
+            <TabsTrigger value="activity" class="rounded-none">Activity</TabsTrigger>
+          </TabsList>
 
-        <!-- Address Information -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Address</h2>
-          <div class="flex items-start">
-            <MapPin class="h-4 w-4 text-gray-600 mr-3 mt-1" />
-            <div>
-              <div class="font-medium">{{ supplier.address.street }}</div>
-              <div class="text-gray-600">
-                {{ supplier.address.city }}, {{ supplier.address.state }}
-              </div>
-              <div class="text-gray-600">
-                {{ supplier.address.country }} {{ supplier.address.postalCode }}
-              </div>
-            </div>
-          </div>
-        </div>
+          <!-- Overview Tab -->
+          <TabsContent value="overview" class="p-6">
+            <div class="grid gap-6 lg:grid-cols-2">
+              <!-- Contact Information -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="flex items-center">
+                    <User class="mr-2 h-5 w-5" />
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-4">
+                  <div class="flex items-center">
+                    <User class="h-4 w-4 text-gray-600 mr-3" />
+                    <div>
+                      <div class="font-medium">{{ supplier.contactPerson }}</div>
+                      <div class="text-sm text-muted-foreground">Contact Person</div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <Mail class="h-4 w-4 text-gray-600 mr-3" />
+                    <div>
+                      <a 
+                        :href="`mailto:${supplier.email}`"
+                        class="font-medium text-blue-600 hover:text-blue-800"
+                      >
+                        {{ supplier.email }}
+                      </a>
+                      <div class="text-sm text-muted-foreground">Email</div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <Phone class="h-4 w-4 text-gray-600 mr-3" />
+                    <div>
+                      <a 
+                        :href="`tel:${supplier.phone}`"
+                        class="font-medium text-blue-600 hover:text-blue-800"
+                      >
+                        {{ supplier.phone }}
+                      </a>
+                      <div class="text-sm text-muted-foreground">Phone</div>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center">
+                    <MessageSquare class="h-4 w-4 text-gray-600 mr-3" />
+                    <div>
+                      <div class="font-medium capitalize">{{ supplier.communicationPlatform }}</div>
+                      <div class="text-sm text-muted-foreground">Preferred Platform</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <!-- Financial Information -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Financial Information</h2>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Payment Terms</span>
-              <span class="font-medium">{{ supplier.paymentTerms }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Currency</span>
-              <span class="font-medium">{{ supplier.currency }}</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Tax ID</span>
-              <span class="font-medium">{{ supplier.taxId }}</span>
-            </div>
-          </div>
-        </div>
+              <!-- Address Information -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="flex items-center">
+                    <MapPin class="mr-2 h-5 w-5" />
+                    Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div class="flex items-start">
+                    <MapPin class="h-4 w-4 text-gray-600 mr-3 mt-1" />
+                    <div>
+                      <div class="font-medium">{{ supplier.address.street }}</div>
+                      <div class="text-muted-foreground">
+                        {{ supplier.address.city }}, {{ supplier.address.state }}
+                      </div>
+                      <div class="text-muted-foreground">
+                        {{ supplier.address.country }} {{ supplier.address.postalCode }}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-        <!-- Bank Details -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 class="text-lg font-semibold text-gray-900 mb-4">Bank Details</h2>
-          <div class="space-y-4">
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Bank Name</span>
-              <span class="font-medium">{{ supplier.bankDetails?.bankName }}</span>
+              <!-- Financial Information -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="flex items-center">
+                    <DollarSign class="mr-2 h-5 w-5" />
+                    Financial Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-4">
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Payment Terms</span>
+                    <span class="font-medium">{{ supplier.paymentTerms }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Currency</span>
+                    <span class="font-medium">{{ supplier.currency }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Tax ID</span>
+                    <span class="font-medium">{{ supplier.taxId }}</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <!-- Bank Details -->
+              <Card>
+                <CardHeader>
+                  <CardTitle class="flex items-center">
+                    <FileText class="mr-2 h-5 w-5" />
+                    Bank Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-4">
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Bank Name</span>
+                    <span class="font-medium">{{ supplier.bankDetails?.bankName || 'N/A' }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Account Number</span>
+                    <span class="font-medium font-mono">{{ supplier.bankDetails?.accountNumber || 'N/A' }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">Routing Number</span>
+                    <span class="font-medium font-mono">{{ supplier.bankDetails?.routingNumber || 'N/A' }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-muted-foreground">SWIFT Code</span>
+                    <span class="font-medium font-mono">{{ supplier.bankDetails?.swiftCode || 'N/A' }}</span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Account Number</span>
-              <span class="font-medium font-mono">{{ supplier.bankDetails?.accountNumber }}</span>
-            </div>  
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">Routing Number</span>
-              <span class="font-medium font-mono">{{ supplier.bankDetails?.routingNumber }}</span>
+          </TabsContent>
+
+          <!-- Documents Tab -->
+          <TabsContent value="documents" class="p-0">
+            <DocumentManager :supplier-id="supplier.supplierId" />
+          </TabsContent>
+
+          <!-- Communication Tab -->
+          <TabsContent value="communication" class="p-0">
+            <CommunicationCenter :supplier-id="supplier.supplierId" />
+          </TabsContent>
+
+          <!-- Custom Fields Tab -->
+          <TabsContent value="custom-fields" class="p-0">
+            <CustomFieldsManager :supplier-id="supplier.supplierId" />
+          </TabsContent>
+
+          <!-- Excel Import Tab -->
+          <TabsContent value="excel-import" class="p-0">
+            <ExcelImportManager :supplier-id="supplier.supplierId" />
+          </TabsContent>
+
+          <!-- Box Labels Tab -->
+          <TabsContent value="box-labels" class="p-0">
+            <BoxLabelGenerator :supplier-id="supplier.supplierId" />
+          </TabsContent>
+
+          <!-- Activity Tab -->
+          <TabsContent value="activity" class="p-6">
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium">Recent Activity</h3>
+              <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <div class="flex-1">
+                    <div class="font-medium">Order #ORD-2024-001 Completed</div>
+                    <div class="text-sm text-muted-foreground">2 hours ago</div>
+                  </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div class="flex-1">
+                    <div class="font-medium">Payment Received</div>
+                    <div class="text-sm text-muted-foreground">1 day ago</div>
+                  </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <div class="flex-1">
+                    <div class="font-medium">Document Updated</div>
+                    <div class="text-sm text-muted-foreground">3 days ago</div>
+                  </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div class="flex-1">
+                    <div class="font-medium">Supplier Created</div>
+                    <div class="text-sm text-muted-foreground">
+                      {{ formatDateTime(supplier.createdAt) }} by Admin
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-if="supplier.updatedAt.getTime() !== supplier.createdAt.getTime()" class="flex items-center space-x-3">
+                  <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div class="flex-1">
+                    <div class="font-medium">Last Updated</div>
+                    <div class="text-sm text-muted-foreground">
+                      {{ formatDateTime(supplier.updatedAt) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-gray-600">SWIFT Code</span>
-              <span class="font-medium font-mono">{{ supplier.bankDetails?.swiftCode }}</span>
-            </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <!-- Activity Timeline -->
@@ -257,10 +373,18 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useSupplierStore } from '@/modules/procurement/stores/supplier'
 import type { Supplier, SupplierStatus } from '@/modules/procurement/types/supplier'
+
+// Advanced Components
+import DocumentManager from '@/modules/procurement/components/suppliers/DocumentManager.vue'
+import CommunicationCenter from '@/modules/procurement/components/suppliers/CommunicationCenter.vue'
+import CustomFieldsManager from '@/modules/procurement/components/suppliers/CustomFieldsManager.vue'
+import ExcelImportManager from '@/modules/procurement/components/suppliers/ExcelImportManager.vue'
+import BoxLabelGenerator from '@/modules/procurement/components/suppliers/BoxLabelGenerator.vue'
 
 // Icons
 import { 
@@ -272,6 +396,18 @@ import {
 // UI Components
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs/index'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -290,6 +426,9 @@ defineEmits<{
 const router = useRouter()
 const supplierStore = useSupplierStore()
 const { selectedSupplier: supplier, loading, error } = storeToRefs(supplierStore)
+
+// Local State
+const activeTab = ref('overview')
 
 // Methods
 function navigateToDocuments() {
