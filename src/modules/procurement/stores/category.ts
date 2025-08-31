@@ -54,8 +54,11 @@ export const useCategoryStore = defineStore('category', () => {
     }
   })
 
-  const rootCategories = computed(() => 
-    categories.value.filter(c => !c.parentId && c.isActive)
+  const rootCategories = computed(() =>
+    categories.value
+      .filter(c => !c.parentId && c.isActive)
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
   )
 
   // Firestore collection reference
@@ -64,9 +67,10 @@ export const useCategoryStore = defineStore('category', () => {
   // Helper function to build hierarchy
   function buildHierarchy(cats: ProductCategory[], parentId?: string, depth = 0): CategoryHierarchy[] {
     const children = cats.filter(c => c.parentId === parentId)
-    
+
     return children
-      .sort((a, b) => a.sortOrder - b.sortOrder)
+      // Sort alphabetically by name at each level (case-insensitive)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
       .map(category => {
         const path = getPathToCategory(cats, category.categoryId)
         return {

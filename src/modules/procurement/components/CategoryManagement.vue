@@ -230,11 +230,14 @@ const availableParents = computed(() => {
   if (!levelNum || levelNum <= 1) return []
   
   const targetLevel = levelNum - 1
-  return categories.value.filter(c => 
-    c.level === targetLevel && 
-    c.isActive && 
-    c.categoryId !== editingCategory.value?.categoryId
-  )
+  return categories.value
+    .filter(c => 
+      c.level === targetLevel && 
+      c.isActive && 
+      c.categoryId !== editingCategory.value?.categoryId
+    )
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 })
 
 // Methods
