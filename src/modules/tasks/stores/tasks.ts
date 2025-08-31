@@ -77,6 +77,12 @@ export const useTasksStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        loading.value = false
+        return
+      }
       let q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'))
       
       if (filters?.projectId) {
@@ -111,6 +117,12 @@ export const useTasksStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        loading.value = false
+        return
+      }
       let q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'))
       
       if (departmentId) {
@@ -597,6 +609,12 @@ export const useTasksStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        loading.value = false
+        return
+      }
       const q = query(collection(db, 'archivedTasks'), orderBy('deletedAt', 'desc'))
       const querySnapshot = await getDocs(q)
       archivedTasks.value = querySnapshot.docs.map(doc => ({
@@ -664,6 +682,12 @@ export const useTasksStore = defineStore('tasks', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        loading.value = false
+        return
+      }
       // Delete all documents in archivedTasks collection
       const batch = await import('firebase/firestore').then(m => m.writeBatch(db))
       const q = query(collection(db, 'archivedTasks'))
@@ -783,6 +807,12 @@ export const useTasksStore = defineStore('tasks', () => {
   async function fetchTaskChangeLogs(taskId: string) {
     try {
       loading.value = true
+      // Guard: avoid querying before auth is ready
+      const authStore = useAuthStore()
+      if (!authStore.user) {
+        loading.value = false
+        return
+      }
       const q = query(
         collection(db, 'taskChangeLogs'),
         where('taskId', '==', taskId),

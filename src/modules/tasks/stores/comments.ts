@@ -28,6 +28,11 @@ export const useCommentsStore = defineStore('comments', () => {
 
   // Realtime subscribe for conversational updates
   function subscribeComments(entityId: string, entityType: 'task' | 'project') {
+    // Guard: avoid subscribing before auth is ready
+    const auth = useAuthStore()
+    if (!auth.user) {
+      return
+    }
     const key = `${entityType}:${entityId}`
     // Cleanup existing
     unsubscribeComments(entityId, entityType)
@@ -123,6 +128,12 @@ export const useCommentsStore = defineStore('comments', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const auth = useAuthStore()
+      if (!auth.user) {
+        loading.value = false
+        return
+      }
       const field = entityType === 'task' ? 'taskId' : 'projectId'
       let q = query(
         collection(db, 'comments'),

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { collection, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, getDocs, limit } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
+import { useAuthStore } from '@/modules/auth/stores/auth'
 import type { 
   Notification, 
   NotificationSettings, 
@@ -66,6 +67,12 @@ export const useNotificationsStore = defineStore('notifications', () => {
     loading.value = true
     error.value = null
     try {
+      // Guard: avoid querying before auth is ready
+      const auth = useAuthStore()
+      if (!auth.user) {
+        loading.value = false
+        return
+      }
       const q = query(
         collection(db, 'notifications'),
         where('userId', '==', userId),
