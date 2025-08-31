@@ -178,7 +178,7 @@
 import { ref, computed, onMounted, reactive } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useCategoryStore } from '@/modules/procurement/stores/category'
-import type { ProductCategory, CreateCategoryRequest } from '@/modules/procurement/types/category'
+import type { ProductCategory } from '@/modules/procurement/types/category'
 
 // Icons
 import { 
