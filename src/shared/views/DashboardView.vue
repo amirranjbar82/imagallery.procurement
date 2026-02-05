@@ -19,14 +19,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <StatCard
-        title="Total Suppliers"
-        value="0"
-        icon="Building2"
-        color="blue"
-        description="Active suppliers in system"
-      />
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <StatCard
         title="Products"
         value="0"
@@ -70,12 +63,6 @@
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
         <div class="grid grid-cols-2 gap-4">
-          <QuickActionCard
-            title="Add Supplier"
-            description="Register a new supplier"
-            icon="Building2"
-            to="/suppliers"
-          />
           <QuickActionCard
             title="Add Product"
             description="Add products to catalog"

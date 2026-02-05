@@ -226,6 +226,7 @@ const toggleStatus = () => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

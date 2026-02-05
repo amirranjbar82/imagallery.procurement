@@ -183,6 +183,7 @@ const formatDueDate = (dueDate: Date) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .kanban-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }

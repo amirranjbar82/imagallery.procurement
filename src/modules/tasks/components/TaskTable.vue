@@ -1024,6 +1024,7 @@ const handleDeleteSubtask = (subtask: any) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 /* Custom scrollbar for table */
 .overflow-x-auto::-webkit-scrollbar {
   height: 6px;

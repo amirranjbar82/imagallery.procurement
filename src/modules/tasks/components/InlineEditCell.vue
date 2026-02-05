@@ -456,6 +456,7 @@ function getInitials(name: string) {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .inline-edit-cell {
   @apply w-full;
 }

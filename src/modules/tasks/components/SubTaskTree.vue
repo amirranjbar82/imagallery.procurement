@@ -196,6 +196,7 @@ const toggleSubtaskCompletion = (subtask: SubTask) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 /* Custom indentation classes */
 .ml-0 { margin-left: 0; }
 .ml-4 { margin-left: 1rem; }

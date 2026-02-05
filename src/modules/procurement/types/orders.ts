@@ -1,4 +1,13 @@
-import type { SupplierAddress } from './supplier'
+// Local address type since we're removing the supplier module
+type Address = {
+  street: string
+  city: string
+  state?: string
+  country: string
+  postalCode: string
+  phone?: string
+  email?: string
+}
 
 export type OrderStatus = 'draft' | 'sent' | 'acknowledged' | 'in_progress' | 'shipped' | 'delivered' | 'completed' | 'cancelled'
 export type OrderPriority = 'low' | 'medium' | 'high' | 'urgent'
@@ -49,8 +58,8 @@ export interface PurchaseOrder {
   deliveryDate: Date
   expectedDeliveryDate?: Date
   actualDeliveryDate?: Date
-  shippingAddress: SupplierAddress
-  billingAddress?: SupplierAddress
+  shippingAddress: Address
+  billingAddress?: Address
   notes?: string
   internalNotes?: string
   attachments: OrderAttachment[]
@@ -64,12 +73,12 @@ export interface PurchaseOrder {
 }
 
 export interface CreateOrderRequest {
-  supplierId: string
+  supplierId?: string  // Made optional since we're removing supplier functionality
   priority: OrderPriority
   items: Omit<OrderItem, 'itemId'>[]
   deliveryDate: Date
-  shippingAddress: SupplierAddress
-  billingAddress?: SupplierAddress
+  shippingAddress: Address
+  billingAddress?: Address
   notes?: string
   internalNotes?: string
   paymentTerms?: string

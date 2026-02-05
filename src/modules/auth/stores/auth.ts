@@ -169,7 +169,12 @@ export const useAuthStore = defineStore('auth', {
           await this.createDefaultUserProfile(uid)
         }
       } catch (error) {
-        console.error('Error loading user profile:', error)
+        // Silently handle Firebase errors in development mode
+        if (import.meta.env.DEV) {
+          console.warn('Firebase not available, using mock data')
+        } else {
+          console.error('Error loading user profile:', error)
+        }
       }
     },
 

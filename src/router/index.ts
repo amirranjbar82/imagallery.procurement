@@ -80,24 +80,12 @@ const router = createRouter({
           meta: { title: 'Roles' }
         },
         
-        // Procurement Module
+        // Procurement Module - Suppliers (Placeholder)
         {
           path: 'suppliers',
           name: 'suppliers',
-          component: () => import('../modules/procurement/views/suppliers/SuppliersView.vue'),
+          component: () => import('../modules/procurement/views/SupplierPlaceholder.vue'),
           meta: { title: 'Suppliers' }
-        },
-        {
-          path: 'suppliers/:id',
-          name: 'supplier-detail',
-          component: () => import('../modules/procurement/views/suppliers/SupplierDetailWrapper.vue'),
-          meta: { title: 'Supplier Details' }
-        },
-        {
-          path: 'suppliers/:id/documents',
-          name: 'supplier-documents',
-          component: () => import('../modules/procurement/views/suppliers/documents/SupplierDocuments.vue'),
-          meta: { title: 'Supplier Documents' }
         },
         {
           path: 'categories',
@@ -166,6 +154,38 @@ const router = createRouter({
           name: 'calendar',
           component: () => import('../modules/tasks/views/CalendarView.vue'),
           meta: { title: 'Calendar' }
+        },
+
+        // Delivery & Installation
+        {
+          path: 'delivery-installation',
+          name: 'delivery-installation',
+          component: () => import('../modules/delivery-installation/views/DeliveryInstallationView.vue'),
+          meta: { title: 'Delivery & Installation', requiresAuth: false }
+        },
+        {
+          path: 'delivery-installation/orders',
+          name: 'delivery-orders',
+          component: () => import('../modules/delivery-installation/views/DeliveryInstallationView.vue'),
+          meta: { title: 'Delivery Orders', requiresAuth: false }
+        },
+        {
+          path: 'delivery-installation/scheduling',
+          name: 'delivery-scheduling',
+          component: () => import('../modules/delivery-installation/views/DeliveryInstallationView.vue'),
+          meta: { title: 'Delivery Scheduling', requiresAuth: false }
+        },
+        {
+          path: 'delivery-installation/daily-programs',
+          name: 'daily-programs',
+          component: () => import('../modules/delivery-installation/views/DeliveryInstallationView.vue'),
+          meta: { title: 'Daily Programs', requiresAuth: false }
+        },
+        {
+          path: 'delivery-installation/reports',
+          name: 'delivery-reports',
+          component: () => import('../modules/delivery-installation/views/DeliveryInstallationView.vue'),
+          meta: { title: 'Delivery Reports', requiresAuth: false }
         },
 
         
@@ -305,6 +325,31 @@ const router = createRouter({
           name: 'user-management',
           component: () => import('../shared/views/settings/user-management/UserManagement.vue'),
           meta: { title: 'User Management', roles: ['admin'] }
+        },
+        {
+          path: 'settings/module-access-control',
+          name: 'module-access-control',
+          component: () => import('@/shared/views/settings/module-access-control/ModuleAccessControlView.vue'),
+          meta: { title: 'Module Access Control', roles: ['admin'] }
+        },
+        {
+          path: 'settings/hierarchical-access-control',
+          name: 'hierarchical-access-control',
+          component: () => import('@/shared/views/settings/hierarchical-access-control/HierarchicalAccessControlView.vue'),
+          meta: { title: 'Hierarchical Access Control', roles: ['admin'] }
+        },
+        // Gallery Board Routes
+        {
+          path: 'gallery-board',
+          name: 'gallery-board',
+          component: () => import('../modules/gallery-board/views/GalleryBoardView.vue'),
+          meta: { title: 'Gallery Board' }
+        },
+        {
+          path: 'settings/gallery-board/assets',
+          name: 'gallery-board-assets',
+          component: () => import('../modules/gallery-board/components/AssetAdminPanel.vue'),
+          meta: { title: 'Gallery Board Assets', roles: ['admin'] }
         }
       ]
     },

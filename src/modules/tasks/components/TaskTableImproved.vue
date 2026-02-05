@@ -334,6 +334,7 @@ const formatDate = (date: string | Date | null | undefined) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .bg-gray-25 {
   background-color: #fafafa;
 }

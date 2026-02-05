@@ -6,6 +6,13 @@
       :current-route="currentRoute"
       @click="$emit('item-click')" 
     />
+    
+    <!-- Gallery Board - Single Item -->
+    <NavigationItem 
+      :item="galleryBoardItem" 
+      :current-route="currentRoute"
+      @click="$emit('item-click')" 
+    />
 
     <!-- Divider -->
     <div class="border-t border-gray-200 my-4"></div>
@@ -68,7 +75,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings, UserCheck, Calculator, CreditCard, FolderTree } from 'lucide-vue-next'
+import { ChevronDown, LayoutDashboard, CheckSquare, ShoppingCart, Package, Building2, Users, FileText, Settings, UserCheck, Calculator, CreditCard, FolderTree, Image as ImageIcon, Truck } from 'lucide-vue-next'
 import NavigationItem from './NavigationItem.vue'
 
 interface NavigationItemType {
@@ -109,6 +116,13 @@ const settingsItem: NavigationItemType = {
   label: 'Settings',
   icon: Settings,
   to: '/settings'
+}
+
+const galleryBoardItem: NavigationItemType = {
+  name: 'gallery-board',
+  label: 'Gallery Board',
+  icon: ImageIcon,
+  to: '/gallery-board'
 }
 
 const accordionSections = computed((): AccordionSection[] => [
@@ -326,6 +340,43 @@ const accordionSections = computed((): AccordionSection[] => [
         label: 'Roles',
         icon: Users,
         to: '/organization/roles'
+      }
+    ]
+  },
+  {
+    id: 'delivery-installation',
+    label: 'Delivery & Installation',
+    icon: Truck,
+    items: [
+      {
+        name: 'delivery-installation',
+        label: 'Dashboard',
+        icon: Truck,
+        to: '/delivery-installation'
+      },
+      {
+        name: 'delivery-orders',
+        label: 'Orders',
+        icon: Package,
+        to: '/delivery-installation/orders'
+      },
+      {
+        name: 'delivery-scheduling',
+        label: 'Scheduling',
+        icon: CheckSquare,
+        to: '/delivery-installation/scheduling'
+      },
+      {
+        name: 'daily-programs',
+        label: 'Daily Programs',
+        icon: FileText,
+        to: '/delivery-installation/daily-programs'
+      },
+      {
+        name: 'delivery-reports',
+        label: 'Reports',
+        icon: FileText,
+        to: '/delivery-installation/reports'
       }
     ]
   },

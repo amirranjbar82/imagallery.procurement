@@ -270,6 +270,7 @@ const formatCurrency = (amount: number) => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;

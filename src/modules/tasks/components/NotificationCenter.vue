@@ -393,6 +393,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 .notification-center {
   position: relative;
 }

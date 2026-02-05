@@ -133,12 +133,6 @@
                   </button>
                 </TableHead>
                 <TableHead>
-                  <button class="inline-flex items-center gap-1" @click="toggleSort('supplierName')">
-                    Supplier
-                    <ArrowUpDown class="h-4 w-4" />
-                  </button>
-                </TableHead>
-                <TableHead>
                   <button class="inline-flex items-center gap-1" @click="toggleSort('orderDate')">
                     Date
                     <ArrowUpDown class="h-4 w-4" />
@@ -168,7 +162,6 @@
             <TableBody>
               <TableRow v-for="order in sortedOrders" :key="order.orderId">
                 <TableCell class="font-medium">{{ order.orderNumber }}</TableCell>
-                <TableCell>{{ order.supplierName }}</TableCell>
                 <TableCell>{{ formatDate(order.orderDate) }}</TableCell>
                 <TableCell>
                   <Badge :variant="getStatusVariant(order.status)">
@@ -218,27 +211,12 @@
         <DialogHeader>
           <DialogTitle>Create Purchase Order</DialogTitle>
           <DialogDescription>
-            Create a new purchase order for supplier goods and services
+            Create a new purchase order
           </DialogDescription>
         </DialogHeader>
 
         <div class="space-y-6">
           <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Label for="supplier">Supplier</Label>
-              <Select v-model="orderForm.supplierId">
-                <SelectTrigger>
-                  <SelectValue placeholder="Select supplier" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="supplier in suppliers" 
-                             :key="supplier.supplierId" 
-                             :value="supplier.supplierId">
-                    {{ supplier.name }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
             <div class="space-y-2">
               <Label for="orderDate">Order Date</Label>
@@ -355,7 +333,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useOrdersStore } from '@/modules/procurement/stores/orders'
-import { useSupplierStore } from '@/modules/procurement/stores/supplier'
 import type { PurchaseOrder, OrderStatus } from '@/modules/procurement/types/orders'
 
 // UI Components
@@ -420,9 +397,7 @@ import ProcurementHeader from '@/modules/procurement/components/ProcurementHeade
 
 // Stores
 const ordersStore = useOrdersStore()
-const supplierStore = useSupplierStore()
 const { orders } = storeToRefs(ordersStore)
-const { suppliers } = storeToRefs(supplierStore)
 
 // Local State
 const showCreateDialog = ref(false)
@@ -432,7 +407,6 @@ const ordersError = ref<string | null>(null)
 const creating = ref(false)
 
 const orderForm = ref({
-  supplierId: '',
   orderDate: new Date().toISOString().split('T')[0],
   expectedDeliveryDate: '',
   priority: 'medium' as 'low' | 'medium' | 'high' | 'urgent',
@@ -446,7 +420,7 @@ const orderForm = ref({
 })
 
 // Computed
-type SortField = 'orderNumber' | 'supplierName' | 'orderDate' | 'status' | 'totalAmount' | 'itemsCount'
+type SortField = 'orderNumber' | 'orderDate' | 'status' | 'totalAmount' | 'itemsCount'
 const sortField = ref<SortField>('orderDate')
 const sortDirection = ref<'asc' | 'desc'>('desc')
 
@@ -457,7 +431,6 @@ const filteredOrders = computed(() => {
     const query = searchQuery.value.toLowerCase()
     filtered = filtered.filter(order => 
       order.orderNumber.toLowerCase().includes(query) ||
-      order.supplierName.toLowerCase().includes(query) ||
       order.notes?.toLowerCase().includes(query)
     )
   }
@@ -475,8 +448,6 @@ const sortedOrders = computed(() => {
   switch (sortField.value) {
     case 'orderNumber':
       return arr.sort((a, b) => a.orderNumber.localeCompare(b.orderNumber) * dir)
-    case 'supplierName':
-      return arr.sort((a, b) => a.supplierName.localeCompare(b.supplierName) * dir)
     case 'orderDate':
       return arr.sort((a, b) => (new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime()) * dir)
     case 'status':
@@ -595,12 +566,10 @@ function downloadPO(order: PurchaseOrder) {
 async function saveAsDraft() {
   creating.value = true
   try {
-    const sup = suppliers.value.find(s => s.supplierId === orderForm.value.supplierId)
     const delivery = orderForm.value.expectedDeliveryDate
       ? new Date(orderForm.value.expectedDeliveryDate)
       : new Date(orderForm.value.orderDate)
     const orderData = {
-      supplierId: orderForm.value.supplierId,
       priority: orderForm.value.priority,
       items: orderForm.value.items.map(item => ({
         productCode: '',
@@ -611,7 +580,7 @@ async function saveAsDraft() {
         totalPrice: item.quantity * item.unitPrice * (1 + item.taxRate / 100)
       })),
       deliveryDate: delivery,
-      shippingAddress: sup ? sup.address : { street: '', city: '', country: '', postalCode: '' },
+      shippingAddress: { street: '', city: '', country: '', postalCode: '' },
       notes: orderForm.value.notes
     }
 
@@ -628,12 +597,10 @@ async function saveAsDraft() {
 async function createOrder() {
   creating.value = true
   try {
-    const sup = suppliers.value.find(s => s.supplierId === orderForm.value.supplierId)
     const delivery = orderForm.value.expectedDeliveryDate
       ? new Date(orderForm.value.expectedDeliveryDate)
       : new Date(orderForm.value.orderDate)
     const orderData = {
-      supplierId: orderForm.value.supplierId,
       priority: orderForm.value.priority,
       items: orderForm.value.items.map(item => ({
         productCode: '',
@@ -644,7 +611,7 @@ async function createOrder() {
         totalPrice: item.quantity * item.unitPrice * (1 + item.taxRate / 100)
       })),
       deliveryDate: delivery,
-      shippingAddress: sup ? sup.address : { street: '', city: '', country: '', postalCode: '' },
+      shippingAddress: { street: '', city: '', country: '', postalCode: '' },
       notes: orderForm.value.notes
     }
 
@@ -660,7 +627,6 @@ async function createOrder() {
 
 function resetForm() {
   orderForm.value = {
-    supplierId: '',
     orderDate: new Date().toISOString().split('T')[0],
     expectedDeliveryDate: '',
     priority: 'medium',
@@ -672,16 +638,11 @@ function resetForm() {
 // Lifecycle
 onMounted(async () => {
   try {
-    // Ensure Select never starts with empty model value
-    if (!statusFilter.value) statusFilter.value = 'all'
     ordersError.value = null
-    await Promise.all([
-      ordersStore.fetchOrders(),
-      supplierStore.fetchSuppliers()
-    ])
-  } catch (e: any) {
-    console.error('Failed to init orders view:', e)
-    ordersError.value = 'Failed to fetch orders. Please check your Firestore permissions or sign in with the correct role.'
+    await ordersStore.fetchOrders()
+  } catch (error) {
+    console.error('Failed to load orders:', error)
+    ordersError.value = 'Failed to load orders. Please try again.'
   }
   // Add initial order item
   addOrderItem()

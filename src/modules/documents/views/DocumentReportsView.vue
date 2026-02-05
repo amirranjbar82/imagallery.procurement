@@ -76,5 +76,6 @@
 </script>
 
 <style scoped>
+@reference "tailwindcss";
 /* Component-specific styles */
 </style>

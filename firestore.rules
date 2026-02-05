@@ -145,6 +145,21 @@ service cloud.firestore {
       allow read, write: if isManager();
       allow read: if isUser();
     }
+    
+    // Gallery Board Collections
+    match /scenes/{sceneId} {
+      allow read, write: if isUser() && request.auth.uid != null;
+    }
+    
+    match /assets/{assetId} {
+      allow read: if isUser();
+      allow create, update, delete: if isManager();
+    }
+    
+    match /calibrations/{calibrationId} {
+      allow read: if isUser();
+      allow create, update: if isUser() && request.auth.uid == request.resource.data.userId;
+    }
 
     // Department Assignments collection
     match /departmentAssignments/{assignmentId} {

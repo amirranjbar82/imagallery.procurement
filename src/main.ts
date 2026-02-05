@@ -7,6 +7,9 @@ import router from './router'
 import { auth } from './lib/firebase'
 import { useAuthStore } from './modules/auth/stores/auth'
 
+// Import stores to ensure they're registered with Pinia
+import './shared/stores'
+
 const app = createApp(App)
 const pinia = createPinia()
 
